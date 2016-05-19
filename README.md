@@ -59,7 +59,7 @@ For example:
 ```
  $ rprel --version="1.2.3" --repo="rentpath/rpenv" build.tgz
  ```
-will create release `1.2.3` of `rpenv` and upload the file/files to GitHub.
+will create release `1.2.3` of `rpenv` and will upload `build.tgz` as a release artifact.
 
 
 # Running the tests

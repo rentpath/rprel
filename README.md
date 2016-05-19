@@ -47,19 +47,19 @@ it uses [Create a Release](https://developer.github.com/v3/repos/releases/#creat
 and [Upload a release asset](https://developer.github.com/v3/repos/releases/#upload-a-release-asset).
 
 To use `Rprel` and build a release simply run:
-` $ rprel --version="<version_number>" --repo="<repo_name>" build.tgz`
+` $ rprel --version="<version_number>" --repo="<repo_owner/repo_name>" build.tgz`
 
 As you can see, there are two required flags:
 
 - Version: This is the version to release.
 
-- Repo: The repo to build the artifact from.
+- Repo: The repo where the release will be created.
 
 For example:
 ```
- $ rprel --version="1.2.3" --repo="ag" build.tgz
+ $ rprel --version="1.2.3" --repo="rentpath/rpenv" build.tgz
  ```
-will build version `1.2.3` of `ApartmentGuide`.
+will create release `1.2.3` of `rpenv` and upload the file/files to GitHub.
 
 
 # Running the tests

@@ -7,18 +7,18 @@ VERSION=1.0.0
 BUILD_TIME=`date +%FT%T%z`
 
 GOFLAGS ?= $(GOFLAGS:)
-LDFLAGS=-ldflags "-X github.com/rentpath/$(BINARY)/core.Version=${VERSION} -X github.com/ariejan/$(BINARY)/core.BuildTime=${BUILD_TIME}"
+LDFLAGS=-ldflags "-X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME}"
 
 .PHONY: all
 all: install test
 
 .PHONY: build
 build: $(SOURCES)
-	@go build $(GOFLAGS) ${LDFLAGS} -o ${BINARY} ./...
+	go build $(GOFLAGS) ${LDFLAGS} -o ${BINARY} ./...
 
 .PHONY: install
 install:
-	@go install $(GOFLAGS) ./...
+	go install $(GOFLAGS) ./...
 
 .PHONY: test
 test: install

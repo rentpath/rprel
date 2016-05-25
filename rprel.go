@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/jtacoma/uritemplates"
 	"github.com/urfave/cli"
+	"io"
+	"io/ioutil"
 	"mime"
 	"net/http"
 	"os"
@@ -13,9 +15,6 @@ import (
 	"strings"
 	"time"
 )
-
-var Version string
-var BuildTime string
 
 var AppHelpTemplate = `NAME:
 	{{.Name}} - {{.Usage}}
@@ -47,12 +46,14 @@ type Release struct {
 	UploadUrl string `json:"upload_url"`
 }
 
+var Version string
+var BuildTime string
+var AuthToken string
+
 func main() {
 	var fullRepo string
 	var releaseName string
-	var authToken string
 	var commitish string
-	compiledTime, _ := time.Parse("2006-01-02T15:04:05-0700", BuildTime)
 	cli.AppHelpTemplate = AppHelpTemplate
 
 	app := cli.NewApp()
@@ -60,20 +61,20 @@ func main() {
 	app.Usage = "Create GitHub release and upload artifacts"
 	app.UsageText = "rprel [options] files..."
 	app.Version = Version
-	app.Compiled = compiledTime
+	app.Compiled, _ = time.Parse("2006-01-02T15:04:05-0700", BuildTime)
 	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:        "token, t",
+			Usage:       "The GitHub authentication `TOKEN`",
+			Destination: &AuthToken,
+			EnvVar:      "GITHUB_AUTH_TOKEN",
+		},
 		cli.StringFlag{
 			Name:        "commitsh, c",
 			Value:       "master",
 			Usage:       "The `COMMITISH` (sha, branch, etc.) that will be used to create the release",
 			Destination: &commitish,
 			EnvVar:      "RELEASE_COMMITISH",
-		},
-		cli.StringFlag{
-			Name:        "token, t",
-			Usage:       "The GitHub authentication `TOKEN`",
-			Destination: &authToken,
-			EnvVar:      "GITHUB_AUTH_TOKEN",
 		},
 		cli.StringFlag{
 			Name:        "repo, r",
@@ -92,7 +93,7 @@ func main() {
 		if ctx.NArg() == 0 {
 			return cli.NewExitError("Error: at least one release artifact must be provided", 1)
 		}
-		if authToken == "" {
+		if AuthToken == "" {
 			return cli.NewExitError("Error: you must provide a GitHub auth token", 1)
 		}
 		if fullRepo == "" {
@@ -102,84 +103,56 @@ func main() {
 			return cli.NewExitError("Error: you must provide the release name", 1)
 		}
 
-		releaseInfo := Release{
+		release := Release{
 			Name:      releaseName,
 			Repo:      fullRepo,
 			Commitish: commitish,
 			Files:     ctx.Args(),
 		}
-		result := createRelease(&releaseInfo, ctx.Args(), authToken)
-		if !result {
-			return cli.NewExitError("The release could not be created :(", 1)
+
+		if err := generateRelease(&release); err != nil {
+			return cli.NewExitError(err.Error(), 1)
+		}
+		if err := uploadReleaseAssets(&release); err != nil {
+			return cli.NewExitError(err.Error(), 1)
 		}
 		fmt.Println("Release created!")
 		return nil
 	}
-
 	app.Run(os.Args)
 }
 
-func createRelease(release *Release, files []string, authToken string) bool {
-	err := generateRelease(release, authToken)
-	uploadReleaseAssets(release, authToken)
-	// create release
-	// upload files
-	if err != nil {
-		return false
-	} else {
-		return true
-	}
-}
-
-func generateRelease(release *Release, authToken string) (err error) {
+func generateRelease(release *Release) (err error) {
 	url := "https://api.github.com/repos/" + release.Repo + "/releases"
-	client := &http.Client{}
 	body := strings.NewReader(`{"tag_name": "` + release.Name + `", "name": "` + release.Name + `", "commitish": "` + release.Commitish + `", "prerelease": true}`)
-	req, err := http.NewRequest("POST", url, body)
-	req.Header.Set("Authorization", "token "+authToken)
 
-	resp, err := client.Do(req)
+	resp, err := githubPostRequest(url, body)
 	if err != nil {
-		fmt.Println(err.Error())
-		return err
-	}
-	defer resp.Body.Close()
-
-	jsonErr := json.NewDecoder(resp.Body).Decode(release)
-
-	if err != nil {
-		fmt.Println("Error: ", jsonErr.Error())
 		return err
 	}
 
+	if err := json.Unmarshal(resp, release); err != nil {
+		return err
+	}
 	return nil
 }
 
-func uploadReleaseAssets(release *Release, authToken string) error {
+func uploadReleaseAssets(release *Release) error {
 	template, _ := uritemplates.Parse(release.UploadUrl)
 	for i := 0; i < len(release.Files); i++ {
-		err := uploadReleaseAsset(release.Files[i], template, authToken)
-		if err != nil {
+		if err := uploadReleaseAsset(release.Files[i], template); err != nil {
 			return err
 		}
-
 	}
 
 	return nil
 }
 
-func uploadReleaseAsset(fileName string, template *uritemplates.UriTemplate, authToken string) error {
-	values := make(map[string]interface{})
-	values["name"] = fileName
+func uploadReleaseAsset(fileName string, template *uritemplates.UriTemplate) error {
 	file, err := os.Open(fileName)
 	if err != nil {
-		return errors.New("Error: there was an issue with the file '" + fileName + "'!")
+		return err
 	}
-	url, _ := template.Expand(values)
-	return doUploadReleaseAsset(file, url, authToken)
-}
-
-func doUploadReleaseAsset(file *os.File, url string, authToken string) error {
 	stat, err := file.Stat()
 	if err != nil {
 		return err
@@ -187,18 +160,36 @@ func doUploadReleaseAsset(file *os.File, url string, authToken string) error {
 	if stat.IsDir() {
 		return errors.New("the asset to upload can't be a directory")
 	}
-	mediaType := mime.TypeByExtension(filepath.Ext(file.Name()))
-
-	client := &http.Client{}
-	req, err := http.NewRequest("POST", url, file)
-	req.Header.Set("Authorization", "token "+authToken)
-	req.Header.Set("Content-Type", mediaType)
-	req.ContentLength = stat.Size()
-	resp, err := client.Do(req)
-
-	if resp == nil {
-		return errors.New("something wrong happened")
+	if err != nil {
+		return errors.New("Error: there was an issue with the file '" + fileName + "'!")
 	}
+	url, _ := template.Expand(map[string]interface{}{"name": fileName})
+	mediaType := mime.TypeByExtension(filepath.Ext(file.Name()))
+	headers := map[string]interface{}{"Content-Type": mediaType, "Content-Length": stat.Size()}
+
+	_, err = githubPostRequest(url, file, headers)
 
 	return err
+}
+
+func githubPostRequest(url string, body io.Reader, headers ...map[string]interface{}) (result []byte, err error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", url, body)
+	req.Header.Set("Authorization", "token "+AuthToken)
+	if len(headers) > 0 {
+		for k, v := range headers[0] {
+			if k == "Content-Length" {
+				req.ContentLength = v.(int64)
+			} else {
+				req.Header.Set(k, v.(string))
+			}
+		}
+	}
+	resp, err := client.Do(req)
+	defer resp.Body.Close()
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return ioutil.ReadAll(resp.Body)
 }

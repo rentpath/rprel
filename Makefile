@@ -3,7 +3,7 @@ SOURCES := $(shell find $(SOURCEDIR) -name '*.go')
 
 BINARY=rprel
 
-VERSION=1.0.0
+VERSION=0.0.1
 BUILD_TIME=`date +%FT%T%z`
 
 GOFLAGS ?= $(GOFLAGS:)
@@ -14,7 +14,7 @@ all: install test
 
 .PHONY: build
 build: $(SOURCES)
-	go build $(GOFLAGS) ${LDFLAGS} -o ${BINARY} ./...
+	go build $(GOFLAGS) ${LDFLAGS} -o ${BINARY} rprel.go
 
 .PHONY: install
 install:

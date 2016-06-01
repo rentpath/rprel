@@ -1,146 +1,129 @@
 package cmd
 
 import (
-	"archive/tar"
 	"fmt"
 	"github.com/urfave/cli"
-	"io"
-	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
-	"strings"
 	"time"
 )
 
 const (
 	BuildCmd        = "command"
 	BuildArchiveCmd = "archive-command"
+	BuildNumber     = "build-number"
+	BuildCommit     = "commit"
 )
 
-type Header struct {
-	Comment string    // comment
-	Extra   []byte    // "extra data"
-	ModTime time.Time // modification time
-	Name    string    // file name
-	OS      byte      // operating system type
-}
-
 var (
-	buildCmd   string
-	archiveCmd string
+	buildCmd        string
+	buildArchiveCmd string
+	buildContext    *cli.Context
+	buildInfoFile   *os.File
+	err             error
 )
 
 func Build(ctx *cli.Context) error {
-	if ctx.NArg() != 1 {
-		return cli.NewExitError("Error: The artifact source must be provided", 1)
+	if err := validateArgs(ctx); err != nil {
+		return err
 	}
 
 	buildCmd = ctx.String(BuildCmd)
-	archiveCmd = ctx.String(BuildArchiveCmd)
-	source := ctx.Args()[0]
+	buildArchiveCmd = ctx.String(BuildArchiveCmd)
 
 	//TODO:build phase
-	buildInfoFile, err := os.Create("BUILD-INFO")
-	if err != nil {
+
+	if buildInfoFile, err = os.Create("BUILD-INFO"); err != nil {
 		return err
 	}
-
 	defer os.Remove(buildInfoFile.Name())
 
-	buildDate := time.Now().Format("20060102")
-
-	var (
-		buildNumber string
-		buildCommit string
-	)
-
-	if os.Getenv["BUILD_NUMBER"] {
-		buildNumber = os.Getenv["BUILD_NUMBER"]
-	} else {
+	if _, err = buildInfoFile.WriteString(buildInfoFileContents()); err != nil {
+		return err
 	}
-
-	buildNumber := "123"
-	buildCommit := "abc123"
-
-	n, err := buildInfoFile.WriteString("---\nversion: " + buildDate + "-" + buildNumber + "-" + buildCommit + "\nbuild_number: " + buildNumber + "\ngit_commit: " + buildCommit + "\n")
-	fmt.Println("wrote %d bytes", n)
 
 	//TODO handle provided archive cmd
-	cwd, _ := os.Getwd()
-	err = generateArchive(source, cwd)
-
-	if err != nil {
+	if err = generateArchive(ctx.Args()[0]); err != nil {
 		fmt.Println(err.Error())
-	}
-
-	return err
-}
-
-func generateArchive(source, target string) error {
-	filename := filepath.Base(source)
-	tarfile, err := ioutil.TempFile("", filename)
-	if err != nil {
-		return err
-	}
-	fmt.Println(tarfile.Name())
-	defer os.Remove(tarfile.Name())
-
-	tarball := tar.NewWriter(tarfile)
-	defer tarball.Close()
-
-	info, err := os.Stat(source)
-	if err != nil {
-		return nil
-	}
-
-	var baseDir string
-	if info.IsDir() {
-		baseDir = filepath.Base(source)
-	}
-
-	err = filepath.Walk(source, tarWalk(baseDir, source, tarball))
-
-	if err != nil {
-		fmt.Println(err.Error())
-		return err
-	}
-
-	dest := filepath.Join(target, fmt.Sprintf("%s.tar", filename))
-	if err := os.Link(tarfile.Name(), dest); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func tarWalk(baseDir string, source string, tarball *tar.Writer) filepath.WalkFunc {
-	return func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		header, err := tar.FileInfoHeader(info, info.Name())
-		if err != nil {
-			return err
-		}
+func generateArchive(source string) error {
 
-		if baseDir != "" {
-			header.Name = filepath.Join(baseDir, strings.TrimPrefix(path, source))
-		}
+	filename := filepath.Base(source)
+	target, _ := os.Getwd()
 
-		if err := tarball.WriteHeader(header); err != nil {
-			return err
-		}
+	tarball := filename + ".tgz"
+	tmpTarPath := os.TempDir() + tarball
 
-		if info.IsDir() {
-			return nil
-		}
-
-		file, err := os.Open(path)
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-		_, err = io.Copy(tarball, file)
+	cmdName := "tar"
+	cmdArgs := []string{"--dereference", "-czf", tmpTarPath, "*", ".??*"}
+	command := exec.Command(cmdName, cmdArgs...)
+	command.Dir = source
+	if err := command.Run(); err != nil {
 		return err
 	}
+
+	if err := os.Rename(tmpTarPath, target+tarball); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func gitHeadSha(dir string) string {
+	cmdName := "git"
+	cmdArgs := []string{"rev-parse", "--verify", "HEAD"}
+	command := exec.Command(cmdName, cmdArgs...)
+	command.Dir = dir
+	cmdOut, err := command.Output()
+	if err != nil {
+		return ""
+	}
+	return string(cmdOut)
+}
+
+func buildInfoFileContents() string {
+	return ("---\n" +
+		"version: " + version() + "\n" +
+		"build_number: " + buildNumber() + "\n" +
+		"git_commit: " + buildCommit() + "\n")
+}
+
+func version() string {
+	return buildDate() + "-" + buildNumber() + "-" + buildCommit()[:7]
+}
+
+func buildDate() string {
+	return time.Now().Format("20060102")
+}
+
+func buildNumber() string {
+	return buildContext.String(BuildNumber)
+}
+
+func buildCommit() string {
+	if buildContext.String("BuildCommit") != "" {
+		return buildContext.String(BuildCommit)
+	} else {
+		return gitHeadSha(buildContext.Args()[0])
+	}
+}
+
+func validateArgs(ctx *cli.Context) error {
+	if ctx.NArg() != 1 {
+		return cli.NewExitError("Error: The artifact source must be provided", 1)
+	}
+	if ctx.String(BuildNumber) == "" {
+		return cli.NewExitError("Error: The build number must be provided", 1)
+	}
+	if len(ctx.String(BuildCommit)) < 7 && gitHeadSha(ctx.Args()[0]) == "" {
+		return cli.NewExitError("Error: A build commit sha of at least 7 characters must be provided", 1)
+	}
+
+	return nil
 }

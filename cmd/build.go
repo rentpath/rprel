@@ -48,6 +48,17 @@ func Build(ctx *cli.Context) error {
 	defer os.Remove(buildInfoFile.Name())
 
 	buildDate := time.Now().Format("20060102")
+
+	var (
+		buildNumber string
+		buildCommit string
+	)
+
+	if os.Getenv["BUILD_NUMBER"] {
+		buildNumber = os.Getenv["BUILD_NUMBER"]
+	} else {
+	}
+
 	buildNumber := "123"
 	buildCommit := "abc123"
 

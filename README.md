@@ -6,6 +6,8 @@ Rprel (arr-pee-rell) is a tool for creating GitHub releases from a build artifac
 - [Building from Source](#building-from-source)
 - [Usage](#usage)
 - [Running the Tests](#running-the-tests)
+- [Go Packages Used](#go-packages-used)
+- [Used Libraries](#used-libraries)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -41,19 +43,34 @@ $ make build
 
 # Usage
 
+Information about `rprel` can be found with
+```
+$ rprel -h`
+```
+
 `Rprel` will publish a release to GitHub. This takes advantage of the
 [GitHub Release API](https://developer.github.com/v3/repos/releases/). In particular,
 it uses [Create a Release](https://developer.github.com/v3/repos/releases/#create-a-release)
 and [Upload a release asset](https://developer.github.com/v3/repos/releases/#upload-a-release-asset).
 
 To use `Rprel` and build a release simply run:
-` $ rprel --version="<version_number>" --repo="<repo_owner/repo_name>" build.tgz`
+```
+ $ rprel --name="<name>" --repo="<repo_owner/repo_name>" build.tgz
+```
 
 As you can see, there are two required flags:
 
-- Version: This is the version to release.
+- Name:
+```
+$ --name (aliased to -n)
+```
+ This is the name to release.
 
-- Repo: The repo where the release will be created.
+- Repo:
+```
+--repo (aliased to -r)
+```
+The owner/repo where the release will be created.
 
 For example:
 ```
@@ -61,11 +78,17 @@ For example:
  ```
 will create release `1.2.3` of `rpenv` and will upload `build.tgz` as a release artifact.
 
-
 # Running the tests
 
 To run the tests:
-` $ make`
+` $ make `
+
+# Used Libraries
+
+|Package| Description | License |
+| ----- | -------- | ------- |
+https://github.com/urfave/cli | A small package for building command line apps in Go | MIT
+https://github.com/jtacoma/uritemplates| URI Templates (RFC 6570) implemented in Go. | BSD
 
 # Contributing
 
@@ -73,6 +96,7 @@ To run the tests:
 -  If you modify code, add a corresponding test (if applicable).
 -  Create a Pull Request (please squash to one concise commit).
 -  Thanks!
+
 
 # License
 

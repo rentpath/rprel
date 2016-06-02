@@ -15,7 +15,7 @@ defmodule Rprel.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger]]
+    [applications: [:logger, :httpoison]]
   end
 
   # Dependencies can be Hex packages:
@@ -28,6 +28,9 @@ defmodule Rprel.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [{:poison, "~>2.0"},
+     {:httpoison, "~> 0.8"},
+     {:uri_template, "~>1.0"},
+     {:bypass, "~> 0.1", only: :test}]
   end
 end

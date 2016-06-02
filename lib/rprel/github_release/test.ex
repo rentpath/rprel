@@ -1,6 +1,11 @@
 defmodule Rprel.GithubRelease.Test do
   @behaviour Rprel.GithubRelease
-  def create(release) do
-    %{release | id: "1", upload_url: "https://uploads.github.com/repos/octocat/Hello-World/releases/1/assets{?name,label}"}
+
+  def create_release(_ = %Rprel.GithubRelease{}, _, [token: _]) do
+    {:ok, "1"}
+  end
+
+  def valid_token?(token) do
+    is_binary(token) && String.length(token) != 0
   end
 end

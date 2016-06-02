@@ -21,4 +21,6 @@ use Mix.Config
 #     config :logger, level: :info
 #
 
+config :rprel, github_api_endpoint: "https://api.github.com"
+
 import_config "#{Mix.env}.exs"

@@ -16,6 +16,8 @@ installed to use/modify it.
 
 You can find instructions on installation [here](http://elixir-lang.org/getting-started/introduction.html).
 
+We use [exenv](https://github.com/mururu/exenv) for managing the Elixir version.
+
 
 Once everything is installed, you can run:
 ```

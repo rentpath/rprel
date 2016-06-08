@@ -47,7 +47,7 @@ defmodule Rprel.Build do
 
   defp valid?(opts) do
     unless opts[:path] do
-      opts = List.keyreplace(opts, :path, 0, {:path,  '.'})
+      opts = opts ++ [path: '.']
     end
 
     {!!(valid_path?(opts[:path]) && opts[:build_number] && opts[:commit]),

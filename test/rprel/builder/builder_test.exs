@@ -11,13 +11,13 @@ defmodule Rprel.BuildTest do
 
     on_exit fn ->
       File.rm(Path.join(build_path, "BUILD-INFO"))
-      # File.rm(Path.join(build_path, "") the build archive??
+      File.rm(Path.join(build_path, "#{date}-#{build_number}-#{short_sha}.tgz"))
     end
 
     {:ok, build_path: build_path, build_number: build_number, sha: sha, short_sha: short_sha, date: date}
   end
 
-  test "it creates a build-info file", context  do
+  test "it creates a build-info file", context do
     assert File.exists?(Path.join(context[:build_path], "BUILD-INFO")) == true
   end
 
@@ -29,5 +29,9 @@ defmodule Rprel.BuildTest do
     build_number: #{context[:build_number]}
     git_commit: #{context[:sha]}
     """}
+  end
+
+  test "it archives the directory", context do
+    assert File.exists?(Path.join(context[:build_path], "#{context[:date]}-#{context[:build_number]}-#{context[:short_sha]}.tgz")) == true
   end
 end

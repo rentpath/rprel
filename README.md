@@ -86,6 +86,9 @@ All the tests can also be run with:
 
 ` $ mix test `
 
+To run the tests on save, run:
+` $ mix test.watch`
+
 # Contributing
 -  Follow the instructions above to install `elixir` and get the repo running.
 -  If you modify code, add a corresponding test (if applicable).

@@ -1,22 +1,22 @@
 defmodule Rprel.BuildTest do
   use ExUnit.Case, async: true
 
-  test "it finds the cwd" do
-    assert Rprel.Build.CreateGzip.get_cwd() == File.cwd!()
-    refute Rprel.Build.CreateGzip.get_cwd() == {:error, ""}
+  setup_all do
+    build_path = Path.relative_to_cwd("test/rprel/builder/test_build")
+    build_number = "100"
+    sha = "abc1234"
+
+    Rprel.Build.create(build_path, build_number, sha)
+
+    on_exit fn ->
+      File.rm(Path.join(build_path, "BUILD-INFO"))
+      # File.rm(Path.join(build_path, "") the build archive??
+    end
+
+    {:ok, build_path: build_path}
   end
 
-  test "it creates a temp dir to write to" do
-    assert Rprel.Build.CreateGzip.create_tmp_dir() == :ok
-  end
-
-  test "it copies the dir over" do
-    assert Rprel.Build.CreateGzip.copy_dir_to_tmp() == ""
-  end
-
-  test "it has the correct permissions" do
-  end
-
-  test "it creates a build-info file" do
+  test "it creates a build-info file", context  do
+    assert File.exists?(Path.join(context[:build_path], "BUILD-INFO")) == true
   end
 end

@@ -31,6 +31,7 @@ defmodule Rprel.Mixfile do
     [{:poison, "~>2.0"},
      {:httpoison, "~> 0.8"},
      {:uri_template, "~>1.0"},
-     {:bypass, "~> 0.1", only: :test}]
+     {:bypass, "~> 0.1", only: :test},
+     {:mix_test_watch, "~> 0.2", only: :dev}]
   end
 end

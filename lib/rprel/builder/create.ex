@@ -8,8 +8,6 @@ defmodule Rprel.Build do
     archive(path, version_string)
   end
 
-  def get_cwd(), do: File.cwd!()
-
   def create_build_info(path, build_number, sha, version_string) do
     build_info_template = ~s"""
     ---

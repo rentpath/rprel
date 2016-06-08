@@ -2,7 +2,7 @@ defmodule Rprel.BuildTest do
   use ExUnit.Case, async: true
 
   setup_all do
-    build_path = Path.relative_to_cwd("test/rprel/builder/test_build")
+    build_path = Path.relative_to_cwd("test/rprel/test_build")
     build_number = "109"
     sha = "39b38b6a397f665a186788370f97006574d760cf"
     short_sha = String.slice(sha, 0..6)

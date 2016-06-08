@@ -10,11 +10,13 @@ defmodule Rprel.Build do
   def get_cwd(), do: File.cwd!()
 
   def create_build_info(path, build_number, sha) do
+    date = Timex.format(Timex.Date.today, "%Y%m%d", :strftime) |> elem(1)
+    short_sha = String.slice(sha, 0..6)
     build_info_template = ~s"""
-      ---
-      version: 20160607-109-39b38b6
-      build_number: 109
-      git_commit: 39b38b6a397f665a186788370f97006574d760cf
+    ---
+    version: #{date}-#{build_number}-#{short_sha}
+    build_number: #{build_number}
+    git_commit: #{sha}
     """
     File.write!(Path.join(path, "BUILD-INFO"), build_info_template)
   end

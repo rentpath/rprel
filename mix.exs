@@ -32,6 +32,7 @@ defmodule Rprel.Mixfile do
      {:httpoison, "~> 0.8"},
      {:uri_template, "~>1.0"},
      {:bypass, "~> 0.1", only: :test},
-     {:mix_test_watch, "~> 0.2", only: :dev}]
+     {:mix_test_watch, "~> 0.2", only: :dev},
+     {:timex, "~> 2.1.6"}]
   end
 end

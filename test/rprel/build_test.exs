@@ -17,12 +17,12 @@ defmodule Rprel.BuildTest do
   end
 
   test "it creates a build-info file", context do
-    Rprel.Build.create([path: context[:build_path], build_number: context[:build_number], commit: context[:sha]], [])
+    Rprel.Build.create([path: context[:build_path], build_number: context[:build_number], commit: context[:sha]])
     assert File.exists?(Path.join(context[:build_path], "BUILD-INFO")) == true
   end
 
   test "it writes the correct build info template", context do
-    Rprel.Build.create([path: context[:build_path], build_number: context[:build_number], commit: context[:sha]], [])
+    Rprel.Build.create([path: context[:build_path], build_number: context[:build_number], commit: context[:sha]])
    assert File.read(Path.join(context[:build_path], "BUILD-INFO")) == {:ok,
      ~s"""
     ---
@@ -33,12 +33,12 @@ defmodule Rprel.BuildTest do
   end
 
   test "it archives the directory", context do
-    Rprel.Build.create([path: context[:build_path], build_number: context[:build_number], commit: context[:sha]], [])
+    Rprel.Build.create([path: context[:build_path], build_number: context[:build_number], commit: context[:sha]])
     assert File.exists?(Path.join(context[:build_path], "#{context[:date]}-#{context[:build_number]}-#{context[:short_sha]}.tgz")) == true
   end
 
   test "it returns an error with an invalid build path", context do
-    build = Rprel.Build.create([path: 'missing-directory', build_number: context[:build_number], commit: context[:sha]], [])
+    build = Rprel.Build.create([path: 'missing-directory', build_number: context[:build_number], commit: context[:sha]])
     assert {:error, "You must supply a valid path"} = build
   end
 end

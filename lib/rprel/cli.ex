@@ -44,10 +44,10 @@ defmodule Rprel.CLI do
   end
 
   def build(build_argv) do
-    {build_opts, build_args, _invalid_opts} = OptionParser.parse(build_argv, strict: [help: :boolean, command: :string, archive_command: :string, build_number: :string, commit: :string, path: :string], aliases: [h: :help, c: :command, a: :archive_command])
+    {build_opts, _build_args, _invalid_opts} = OptionParser.parse(build_argv, strict: [help: :boolean, command: :string, archive_command: :string, build_number: :string, commit: :string, path: :string], aliases: [h: :help, c: :command, a: :archive_command])
     cond do
       build_opts[:help] -> {:ok, build_help_text}
-      true -> do_build(build_opts, build_args)
+      true -> do_build(build_opts)
     end
   end
 
@@ -67,8 +67,8 @@ defmodule Rprel.CLI do
     end
   end
 
-  def do_build(opts, args) do
-    Rprel.Build.create(opts, args)
+  def do_build(opts) do
+    Rprel.Build.create(opts)
   end
 
   defp do_release(opts, args) do

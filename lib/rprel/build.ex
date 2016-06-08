@@ -3,14 +3,14 @@ defmodule Rprel.Build do
   @missing_commit_sha "You must provide a commit sha with --commit"
   @invalid_path "You must supply a valid path"
 
-  def create(opts, args) do
-    case valid?(opts, args) do
+  def create(opts) do
+    case valid?(opts) do
       {true, opts} ->
         date = Timex.format(Timex.Date.today, "%Y%m%d", :strftime) |> elem(1)
         sha = opts[:commit]
         short_sha = String.slice(sha, 0..6)
         build_number = opts[:build_number]
-        path = opts[:path] || '.'
+        path = opts[:path]
         version_string =  "#{date}-#{build_number}-#{short_sha}"
 
         create_build_info(path, build_number, sha, version_string)
@@ -45,7 +45,7 @@ defmodule Rprel.Build do
     System.cmd("mv", [archive_path, path])
   end
 
-  defp valid?(opts, args) do
+  defp valid?(opts) do
     unless opts[:path] do
       opts = List.keyreplace(opts, :path, 0, {:path,  '.'})
     end

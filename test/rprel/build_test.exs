@@ -7,7 +7,6 @@ defmodule Rprel.BuildTest do
     sha = "39b38b6a397f665a186788370f97006574d760cf"
     short_sha = String.slice(sha, 0..6)
     date = Timex.format(Timex.Date.today, "%Y%m%d", :strftime) |> elem(1)
-    Rprel.Build.create(build_path, build_number, sha)
 
     on_exit fn ->
       File.rm(Path.join(build_path, "BUILD-INFO"))
@@ -18,10 +17,12 @@ defmodule Rprel.BuildTest do
   end
 
   test "it creates a build-info file", context do
+    Rprel.Build.create([path: context[:build_path], build_number: context[:build_number], commit: context[:sha]], [])
     assert File.exists?(Path.join(context[:build_path], "BUILD-INFO")) == true
   end
 
   test "it writes the correct build info template", context do
+    Rprel.Build.create([path: context[:build_path], build_number: context[:build_number], commit: context[:sha]], [])
    assert File.read(Path.join(context[:build_path], "BUILD-INFO")) == {:ok,
      ~s"""
     ---
@@ -32,6 +33,12 @@ defmodule Rprel.BuildTest do
   end
 
   test "it archives the directory", context do
+    Rprel.Build.create([path: context[:build_path], build_number: context[:build_number], commit: context[:sha]], [])
     assert File.exists?(Path.join(context[:build_path], "#{context[:date]}-#{context[:build_number]}-#{context[:short_sha]}.tgz")) == true
+  end
+
+  test "it returns an error with an invalid build path", context do
+    build = Rprel.Build.create([path: 'missing-directory', build_number: context[:build_number], commit: context[:sha]], [])
+    assert {:error, "You must supply a valid path"} = build
   end
 end

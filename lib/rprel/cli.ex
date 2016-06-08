@@ -44,7 +44,7 @@ defmodule Rprel.CLI do
   end
 
   def build(build_argv) do
-    {build_opts, build_args, _invalid_opts} = OptionParser.parse(build_argv, strict: [help: :boolean, command: :string, archive_command: :string, build_number: :string, commit: :string], aliases: [h: :help, c: :command, a: :archive_command])
+    {build_opts, build_args, _invalid_opts} = OptionParser.parse(build_argv, strict: [help: :boolean, command: :string, archive_command: :string, build_number: :string, commit: :string, path: :string], aliases: [h: :help, c: :command, a: :archive_command])
     cond do
       build_opts[:help] -> {:ok, build_help_text}
       true -> do_build(build_opts, build_args)
@@ -68,9 +68,7 @@ defmodule Rprel.CLI do
   end
 
   def do_build(opts, args) do
-    IO.inspect(opts)
-    IO.inspect(args)
-    Rprel.Build.create(opts, args, "")
+    Rprel.Build.create(opts, args)
   end
 
   defp do_release(opts, args) do
@@ -142,6 +140,8 @@ defmodule Rprel.CLI do
            The NUMBER used by the CI service to identify the build` [$BUILD_NUMBER]
        --commit SHA
            The SHA of the build (default: `git rev-parse --verify HEAD`) [$GIT_COMMIT]
+       --path PATH
+           The path to tar and gzip (default: current working directory )
     """
   end
 

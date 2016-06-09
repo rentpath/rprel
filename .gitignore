@@ -5,3 +5,8 @@ erl_crash.dump
 *.ez
 *.beam
 /rprel
+/test/rprel/test_build_failure/BUILD-INFO
+/test/rprel/test_no_buildsh/BUILD-INFO
+/test/rprel/test_no_buildsh/*.tgz
+/BUILD-INFO
+/*tgz

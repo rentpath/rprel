@@ -21,8 +21,8 @@ defmodule Rprel.CLI do
   def unspecified_error_msg, do: @unspecified_error_msg
 
   def main(argv) do
-    {_result, msg} = do_main(argv)
-    IO.puts(msg)
+    {_result, message} = do_main(argv)
+    if message, do: IO.puts(message)
   end
 
   def do_main(argv) do
@@ -44,10 +44,10 @@ defmodule Rprel.CLI do
   end
 
   def build(build_argv) do
-    {build_opts, build_args, _invalid_opts} = OptionParser.parse(build_argv, strict: [help: :boolean, command: :string, archive_command: :string, build_number: :string, commit: :string], aliases: [h: :help, c: :command, a: :archive_command])
+    {build_opts, _build_args, _invalid_opts} = OptionParser.parse(build_argv, strict: [help: :boolean, command: :string, archive_command: :string, build_number: :string, commit: :string, path: :string], aliases: [h: :help, c: :command, a: :archive_command])
     cond do
       build_opts[:help] -> {:ok, build_help_text}
-      true -> do_build(build_args)
+      true -> Rprel.Build.create(build_opts)
     end
   end
 
@@ -55,7 +55,7 @@ defmodule Rprel.CLI do
     {release_opts, release_args, _invalid_opts} = OptionParser.parse(release_argv, strict: [help: :boolean, token: :string, commit: :string, repo: :string, version: :string], aliases: [h: :help, t: :token, c: :commit, r: :repo, v: :version])
     cond do
       release_opts[:help] -> {:ok, release_help_text}
-      true -> do_release(update_with_release_env_vars(release_opts), release_args)
+      true -> release_opts |> update_with_release_env_vars |> do_release(release_args)
     end
   end
 
@@ -67,19 +67,14 @@ defmodule Rprel.CLI do
     end
   end
 
-  def do_build(_args) do
-
-  end
-
   defp do_release(opts, args) do
-    case Rprel.ReleaseCreator.create(%Rprel.GithubRelease{name: opts[:repo],
-                                                          version: opts[:version],
-                                                          commit: opts[:commit]}, args, [token: opts[:token]]) do
+    release = %Rprel.GithubRelease{name: opts[:repo], version: opts[:version], commit: opts[:commit]}
+    case Rprel.ReleaseCreator.create(release, args, [token: opts[:token]]) do
       {:error, :invalid_auth_token} -> {:error, @invalid_token_msg}
       {:error, :invalid_repo_name} -> {:error, @invalid_repo_name_msg}
       {:error, :missing_commit} -> {:error, @invalid_commit_msg}
-      {:error, :missing_files} -> {:error, @invalid_files_msg}
       {:error, :missing_version} -> {:error, @invalid_version_msg}
+      {:error, :missing_files} -> {:error, @invalid_files_msg}
       {:error, :release_already_exists} -> {:error, @release_already_exists_msg}
       {:error, :unspecified_error} -> {:error, @unspecified_error_msg}
       {:ok, _} -> {:ok, ""}
@@ -141,6 +136,8 @@ defmodule Rprel.CLI do
            The NUMBER used by the CI service to identify the build` [$BUILD_NUMBER]
        --commit SHA
            The SHA of the build (default: `git rev-parse --verify HEAD`) [$GIT_COMMIT]
+       --path PATH
+           The path to tar and gzip (default: current working directory )
     """
   end
 

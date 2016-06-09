@@ -44,7 +44,7 @@ defmodule Rprel.CLI do
   end
 
   def build(build_argv) do
-    {build_opts, _build_args, _invalid_opts} = OptionParser.parse(build_argv, strict: [help: :boolean, command: :string, archive_command: :string, build_number: :string, commit: :string, path: :string], aliases: [h: :help, c: :command, a: :archive_command])
+    {build_opts, _build_args, _invalid_opts} = OptionParser.parse(build_argv, strict: [help: :boolean, archive_command: :string, build_number: :string, commit: :string, path: :string], aliases: [h: :help, a: :archive_command])
     cond do
       build_opts[:help] -> {:ok, build_help_text}
       true -> Rprel.Build.create(build_opts)
@@ -121,12 +121,6 @@ defmodule Rprel.CLI do
        rprel build [command options] [arguments...]
 
     OPTIONS:
-       --command CMD, -c CMD
-           The CMD to run during the building of the artifact. If no command is
-           provided and a Makefile is present, rprel will run `make build` if `build`
-           is a valid Make target, otherwise falling back to just `make`. If no `CMD`
-           is provided and there is no Makefile, nothing will be done during the
-           build phase.
        --archive-command ARCHIVE_CMD, -a ARCHIVE_CMD
            The ARCHIVE_CMD to run during the artifact packaging phase. If no command
            is provided and a Makefile exists with an `archive` target, `make archive`

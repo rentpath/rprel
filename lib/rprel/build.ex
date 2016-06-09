@@ -36,8 +36,8 @@ defmodule Rprel.Build do
   end
 
   defp run_build_script(path) do
-    if File.exists?(Path.join(path, 'build.sh')) do
-      Mix.Shell.IO.cmd("cd #{path} && ./build.sh")
+    if File.exists?(Path.join([path, 'bin', 'build.sh'])) do
+      Porcelain.shell("cd #{path} && ./bin/build.sh").status
     else
       IO.puts("build.sh not found, skipping build step")
       0
@@ -60,13 +60,13 @@ defmodule Rprel.Build do
   end
 
   defp archive(path, version_string) do
-    if File.exists?(Path.join(path, 'archive.sh')) do
+    if File.exists?(Path.join([path, 'bin', 'archive.sh'])) do
       IO.puts("running archive.sh")
-      status = Mix.Shell.IO.cmd("cd #{path} && ./archive.sh")
-      if status != 0 do
+      output = Porcelain.shell("cd #{path} && ./bin/archive.sh")
+      if output.status != 0 do
         IO.puts("archive.sh returned an error")
       end
-      status
+      output.status
     else
       archive_path = Path.join(System.tmp_dir(), "#{version_string}.tgz")
       System.cmd("tar", ["--dereference", "-czf", archive_path, path])

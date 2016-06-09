@@ -100,6 +100,7 @@ defmodule Rprel.CLI do
     AUTHOR(S):
       Tyler Long
       Colin Rymer
+      Eric Himmelreich
     COMMANDS:
       build
       help
@@ -119,6 +120,8 @@ defmodule Rprel.CLI do
 
     USAGE:
        rprel build [command options] [arguments...]
+
+       rprel will run ./bin/build.sh ./bin/archive.sh if they exist
 
     OPTIONS:
        --build-number NUMBER

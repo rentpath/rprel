@@ -12,7 +12,7 @@ defmodule Rprel.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :httpoison]]
+    [applications: [:logger, :httpoison, :porcelain]]
   end
 
   defp deps do
@@ -21,6 +21,7 @@ defmodule Rprel.Mixfile do
      {:uri_template, "~>1.0"},
      {:bypass, "~> 0.1", only: :test},
      {:mix_test_watch, "~> 0.2", only: :dev},
-     {:timex, "~> 2.1.6"}]
+     {:timex, "~> 2.1.6"},
+     {:porcelain, "~> 2.0.0"}]
   end
 end

@@ -60,10 +60,20 @@ defmodule Rprel.Build do
   end
 
   defp archive(path, version_string) do
-    archive_path = Path.join(System.tmp_dir(), "#{version_string}.tgz")
-    System.cmd("tar", ["--dereference", "-czf", archive_path, path])
-    System.cmd("mv", [archive_path, path])
-    {:ok, nil}
+    if File.exists?(Path.join(path, 'archive.sh')) do
+      IO.puts("running archive.sh")
+      status = Mix.Shell.IO.cmd("cd #{path} && ./archive.sh")
+      if status != 0 do
+        IO.puts("archive.sh returned an error")
+      end
+      status
+    else
+      archive_path = Path.join(System.tmp_dir(), "#{version_string}.tgz")
+      System.cmd("tar", ["--dereference", "-czf", archive_path, path])
+      System.cmd("mv", [archive_path, path])
+      IO.puts("created #{version_string}.tgz")
+      {:ok, nil}
+    end
   end
 
   defp valid?(opts) do

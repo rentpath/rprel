@@ -44,7 +44,7 @@ defmodule Rprel.CLI do
   end
 
   def build(build_argv) do
-    {build_opts, _build_args, _invalid_opts} = OptionParser.parse(build_argv, strict: [help: :boolean, archive_command: :string, build_number: :string, commit: :string, path: :string], aliases: [h: :help, a: :archive_command])
+    {build_opts, _build_args, _invalid_opts} = OptionParser.parse(build_argv, strict: [help: :boolean, build_number: :string, commit: :string, path: :string], aliases: [h: :help])
     cond do
       build_opts[:help] -> {:ok, build_help_text}
       true -> Rprel.Build.create(build_opts)
@@ -121,11 +121,6 @@ defmodule Rprel.CLI do
        rprel build [command options] [arguments...]
 
     OPTIONS:
-       --archive-command ARCHIVE_CMD, -a ARCHIVE_CMD
-           The ARCHIVE_CMD to run during the artifact packaging phase. If no command
-           is provided and a Makefile exists with an `archive` target, `make archive`
-           will be run, otherwise, the source provided will be packaged into a
-           gzipped tarball.
        --build-number NUMBER
            The NUMBER used by the CI service to identify the build` [$BUILD_NUMBER]
        --commit SHA

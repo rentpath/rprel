@@ -15,6 +15,7 @@ defmodule Rprel.Build do
 
         create_build_info(path, build_number, sha, version_string)
         archive(path, version_string)
+        {:ok, nil}
       {false, _args} ->
         cond do
           is_nil(opts[:build_number]) -> {:error, @missing_build_number}

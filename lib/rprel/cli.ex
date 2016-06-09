@@ -21,8 +21,8 @@ defmodule Rprel.CLI do
   def unspecified_error_msg, do: @unspecified_error_msg
 
   def main(argv) do
-    {_result, msg} = do_main(argv)
-    IO.puts(msg)
+    {_result, message} = do_main(argv)
+    if message, do: IO.puts(message)
   end
 
   def do_main(argv) do
@@ -47,7 +47,7 @@ defmodule Rprel.CLI do
     {build_opts, _build_args, _invalid_opts} = OptionParser.parse(build_argv, strict: [help: :boolean, command: :string, archive_command: :string, build_number: :string, commit: :string, path: :string], aliases: [h: :help, c: :command, a: :archive_command])
     cond do
       build_opts[:help] -> {:ok, build_help_text}
-      true -> do_build(build_opts)
+      true -> Rprel.Build.create(build_opts)
     end
   end
 
@@ -65,10 +65,6 @@ defmodule Rprel.CLI do
       opts[:version] -> {:ok, Rprel.version}
       true -> {:ok, help_text}
     end
-  end
-
-  def do_build(opts) do
-    Rprel.Build.create(opts)
   end
 
   defp do_release(opts, args) do

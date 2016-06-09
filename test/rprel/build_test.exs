@@ -41,4 +41,8 @@ defmodule Rprel.BuildTest do
     build = Rprel.Build.create([path: 'missing-directory', build_number: context[:build_number], commit: context[:sha]])
     assert {:error, "You must supply a valid path"} = build
   end
+
+  test "it runs the build.sh by default", context do
+    assert Rprel.Build.create([path: context[:build_path], build_number: context[:build_number], commit: context[:sha]]) == {:ok, nil}
+  end
 end

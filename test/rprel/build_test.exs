@@ -48,7 +48,7 @@ defmodule Rprel.BuildTest do
       Rprel.Build.create([path: context[:build_path], build_number: context[:build_number], commit: context[:sha]])
     end)
 
-    assert message == "created #{context[:date]}-#{context[:build_number]}-#{context[:short_sha]}.tgz\n"
+    assert String.contains?(message,"created #{context[:date]}-#{context[:build_number]}-#{context[:short_sha]}.tgz\n")
     assert File.exists?(Path.join(context[:build_path], "#{context[:date]}-#{context[:build_number]}-#{context[:short_sha]}.tgz")) == true
   end
 
@@ -87,7 +87,7 @@ defmodule Rprel.BuildTest do
       Rprel.Build.create([path: context[:fail_to_build_path], build_number: context[:build_number], commit: context[:sha]])
     end)
 
-    assert error_message == "build.sh returned an error\n"
+    assert String.contains?(error_message, "build.sh returned an error")
   end
 
   test "it returns a warning if the build.sh is missing", context do

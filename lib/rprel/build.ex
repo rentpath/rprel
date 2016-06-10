@@ -81,7 +81,15 @@ defmodule Rprel.Build do
       opts = opts ++ [path: '.']
     end
 
-    {!!(valid_path?(opts[:path]) && opts[:build_number] && opts[:commit]),
+    unless opts[:commit] do
+      command =
+        Porcelain.shell("cd #{opts[:path]} && git rev-parse --verify HEAD")
+      if command.status == 0 do
+        opts = opts ++ [commit: String.strip(command.out)]
+      end
+    end
+
+    {!!(valid_path?(opts[:path]) && valid_commit?(opts[:commit]) && opts[:build_number] && opts[:commit]),
      opts}
   end
 
@@ -90,5 +98,9 @@ defmodule Rprel.Build do
       {:ok, permission} -> permission.access == :read_write
       {:error, _message} -> false
     end
+  end
+
+  def valid_commit?(path) do
+    is_bitstring(path)
   end
 end

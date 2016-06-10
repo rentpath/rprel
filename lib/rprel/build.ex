@@ -100,7 +100,7 @@ defmodule Rprel.Build do
     end
   end
 
-  def valid_commit?(path) do
-    is_bitstring(path)
+  def valid_commit?(commit) do
+    is_bitstring(commit)
   end
 end

@@ -47,7 +47,7 @@ defmodule Rprel.CLI do
     {build_opts, _build_args, _invalid_opts} = OptionParser.parse(build_argv, strict: [help: :boolean, build_number: :string, commit: :string, path: :string], aliases: [h: :help])
     cond do
       build_opts[:help] -> {:ok, build_help_text}
-      true -> Rprel.Build.create(build_opts)
+      true -> build_opts |> update_with_build_env_vars |> Rprel.Build.create
     end
   end
 
@@ -87,6 +87,12 @@ defmodule Rprel.CLI do
     |> Keyword.put_new(:commit, System.get_env("RELEASE_COMMIT"))
     |> Keyword.put_new(:repo, System.get_env("RELEASE_REPO"))
     |> Keyword.put_new(:version, System.get_env("RELEASE_VERSION"))
+  end
+
+  def update_with_build_env_vars(opts) do
+    opts
+    |> Keyword.put_new(:commit, System.get_env("GIT_COMMIT"))
+    |> Keyword.put_new(:build_number, System.get_env("BUILD_NUMBER"))
   end
 
   def help_text do

@@ -121,7 +121,7 @@ defmodule Rprel.CLI do
     USAGE:
        rprel build [command options] [arguments...]
 
-       rprel will run ./bin/build.sh ./bin/archive.sh if they exist
+       rprel will run ./bin/build ./bin/archive if they exist
 
     OPTIONS:
        --build-number NUMBER

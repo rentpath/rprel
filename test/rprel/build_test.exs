@@ -74,27 +74,27 @@ defmodule Rprel.BuildTest do
     assert {:error, "You must supply a valid path"} = build
   end
 
-  test "it runs the build.sh by default", context do
+  test "it runs the build by default", context do
     error_message = capture_io(fn ->
       assert Rprel.Build.create([path: context[:build_path], build_number: context[:build_number], commit: context[:sha]]) == {:ok, nil}
     end)
 
-    refute String.contains?(error_message, "build.sh not found, skipping build step")
+    refute String.contains?(error_message, "build not found, skipping build step")
   end
 
-  test "it returns an error if the build.sh does not work", context do
+  test "it returns an error if the build does not work", context do
     error_message = capture_io(fn ->
       Rprel.Build.create([path: context[:fail_to_build_path], build_number: context[:build_number], commit: context[:sha]])
     end)
 
-    assert String.contains?(error_message, "build.sh returned an error")
+    assert String.contains?(error_message, "build returned an error")
   end
 
-  test "it returns a warning if the build.sh is missing", context do
+  test "it returns a warning if the build is missing", context do
     error_message = capture_io(fn ->
       Rprel.Build.create([path: context[:missing_buildsh_path], build_number: context[:build_number], commit: context[:sha]])
     end)
 
-    assert String.contains?(error_message, "build.sh not found, skipping build step")
+    assert String.contains?(error_message, "build not found, skipping build step")
   end
 end

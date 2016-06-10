@@ -16,7 +16,7 @@ defmodule Rprel.Build do
         case build(path, build_number, sha, version_string) do
           0 -> archive(path, version_string)
           {:error, msg} -> IO.puts(msg)
-          status when status > 0 -> IO.puts("build.sh returned an error")
+          status when status > 0 -> IO.puts("build returned an error")
           _ -> nil
         end
       {false, _args} ->
@@ -36,10 +36,10 @@ defmodule Rprel.Build do
   end
 
   defp run_build_script(path) do
-    if File.exists?(Path.join([path, 'bin', 'build.sh'])) do
-      Porcelain.shell("cd #{path} && ./bin/build.sh").status
+    if File.exists?(Path.join([path, 'bin', 'build'])) do
+      Porcelain.shell("cd #{path} && ./bin/build").status
     else
-      IO.puts("build.sh not found, skipping build step")
+      IO.puts("build not found, skipping build step")
       0
     end
   end

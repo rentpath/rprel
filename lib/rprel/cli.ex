@@ -44,10 +44,10 @@ defmodule Rprel.CLI do
   end
 
   def build(build_argv) do
-    {build_opts, _build_args, _invalid_opts} = OptionParser.parse(build_argv, strict: [help: :boolean, command: :string, archive_command: :string, build_number: :string, commit: :string, path: :string], aliases: [h: :help, c: :command, a: :archive_command])
+    {build_opts, _build_args, _invalid_opts} = OptionParser.parse(build_argv, strict: [help: :boolean, build_number: :string, commit: :string, path: :string], aliases: [h: :help])
     cond do
       build_opts[:help] -> {:ok, build_help_text}
-      true -> Rprel.Build.create(build_opts)
+      true -> build_opts |> update_with_build_env_vars |> Rprel.Build.create
     end
   end
 
@@ -89,6 +89,12 @@ defmodule Rprel.CLI do
     |> Keyword.put_new(:version, System.get_env("RELEASE_VERSION"))
   end
 
+  def update_with_build_env_vars(opts) do
+    opts
+    |> Keyword.put_new(:commit, System.get_env("GIT_COMMIT"))
+    |> Keyword.put_new(:build_number, System.get_env("BUILD_NUMBER"))
+  end
+
   def help_text do
     ~s"""
     NAME:
@@ -100,6 +106,7 @@ defmodule Rprel.CLI do
     AUTHOR(S):
       Tyler Long
       Colin Rymer
+      Eric Himmelreich
     COMMANDS:
       build
       help
@@ -120,18 +127,9 @@ defmodule Rprel.CLI do
     USAGE:
        rprel build [command options] [arguments...]
 
+       rprel will run ./bin/build ./bin/archive if they exist
+
     OPTIONS:
-       --command CMD, -c CMD
-           The CMD to run during the building of the artifact. If no command is
-           provided and a Makefile is present, rprel will run `make build` if `build`
-           is a valid Make target, otherwise falling back to just `make`. If no `CMD`
-           is provided and there is no Makefile, nothing will be done during the
-           build phase.
-       --archive-command ARCHIVE_CMD, -a ARCHIVE_CMD
-           The ARCHIVE_CMD to run during the artifact packaging phase. If no command
-           is provided and a Makefile exists with an `archive` target, `make archive`
-           will be run, otherwise, the source provided will be packaged into a
-           gzipped tarball.
        --build-number NUMBER
            The NUMBER used by the CI service to identify the build` [$BUILD_NUMBER]
        --commit SHA

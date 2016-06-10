@@ -13,15 +13,34 @@ defmodule Rprel.Build do
         path = opts[:path]
         version_string =  "#{date}-#{build_number}-#{short_sha}"
 
-        create_build_info(path, build_number, sha, version_string)
-        archive(path, version_string)
-        {:ok, nil}
+        case build(path, build_number, sha, version_string) do
+          0 -> archive(path, version_string)
+          {:error, msg} -> IO.puts(msg)
+          status when status > 0 -> IO.puts("build returned an error")
+          _ -> nil
+        end
       {false, _args} ->
         cond do
           is_nil(opts[:build_number]) -> {:error, @missing_build_number}
           is_nil(opts[:commit]) -> {:error, @missing_commit_sha}
           !valid_path?(opts[:path]) -> {:error, @invalid_path}
         end
+    end
+  end
+
+  defp build(path, build_number, sha, version_string) do
+    case create_build_info(path, build_number, sha, version_string) do
+      :ok -> run_build_script(path)
+      {:error, msg} -> {:error, msg}
+    end
+  end
+
+  defp run_build_script(path) do
+    if File.exists?(Path.join([path, 'bin', 'build'])) do
+      Porcelain.shell("cd #{path} && ./bin/build").status
+    else
+      IO.puts("build not found, skipping build step")
+      0
     end
   end
 
@@ -34,16 +53,27 @@ defmodule Rprel.Build do
     """
 
     if valid_path?(path) do
-      File.write!(Path.join(path, "BUILD-INFO"), build_info_template)
+      File.write(Path.join(path, "BUILD-INFO"), build_info_template)
     else
       {:error, @invalid_path}
     end
   end
 
   defp archive(path, version_string) do
-    archive_path = Path.join(System.tmp_dir(), "#{version_string}.tgz")
-    System.cmd("tar", ["--dereference", "-czf", archive_path, path])
-    System.cmd("mv", [archive_path, path])
+    if File.exists?(Path.join([path, 'bin', 'archive'])) do
+      IO.puts("running archive")
+      output = Porcelain.shell("cd #{path} && ./bin/archive")
+      if output.status != 0 do
+        IO.puts("archive returned an error")
+      end
+      output.status
+    else
+      archive_path = Path.join(System.tmp_dir(), "#{version_string}.tgz")
+      System.cmd("tar", ["--dereference", "-czf", archive_path, path])
+      System.cmd("mv", [archive_path, path])
+      IO.puts("created #{version_string}.tgz")
+      {:ok, nil}
+    end
   end
 
   defp valid?(opts) do
@@ -51,7 +81,15 @@ defmodule Rprel.Build do
       opts = opts ++ [path: '.']
     end
 
-    {!!(valid_path?(opts[:path]) && opts[:build_number] && opts[:commit]),
+    unless opts[:commit] do
+      command =
+        Porcelain.shell("cd #{opts[:path]} && git rev-parse --verify HEAD")
+      if command.status == 0 do
+        opts = opts ++ [commit: String.strip(command.out)]
+      end
+    end
+
+    {!!(valid_path?(opts[:path]) && valid_commit?(opts[:commit]) && opts[:build_number] && opts[:commit]),
      opts}
   end
 
@@ -60,5 +98,9 @@ defmodule Rprel.Build do
       {:ok, permission} -> permission.access == :read_write
       {:error, _message} -> false
     end
+  end
+
+  def valid_commit?(commit) do
+    is_bitstring(commit)
   end
 end

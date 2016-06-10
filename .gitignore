@@ -5,3 +5,15 @@ erl_crash.dump
 *.ez
 *.beam
 /rprel
+/test/rprel/test_build_failure/BUILD-INFO
+/test/rprel/test_no_buildsh/BUILD-INFO
+/test/rprel/test_no_buildsh/*.tgz
+/BUILD-INFO
+/*tgz
+/test/rprel/test_build_archive/BUILD-INFO
+/test/rprel/test_build_archive/*.tgz
+/test/rprel/test_fail_archive/BUILD-INFO
+/test/rprel/test_build_failure/*.tgz
+/test/rprel/archive.tgz
+/test/rprel/test_build_archive/20160610-109-39b38b6.tgz
+/test/rprel/test_fail_archive/*.tgz

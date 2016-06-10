@@ -22,5 +22,6 @@ use Mix.Config
 #
 
 config :rprel, github_api_endpoint: "https://api.github.com"
+config :porcelain, driver: Porcelain.Driver.Basic
 
 import_config "#{Mix.env}.exs"

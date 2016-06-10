@@ -52,21 +52,21 @@ defmodule Rprel.BuildTest do
     assert File.exists?(Path.join(context[:build_path], "#{context[:date]}-#{context[:build_number]}-#{context[:short_sha]}.tgz")) == true
   end
 
-  test "it runs the archive.sh by default", context do
+  test "it runs the archive by default", context do
     message = capture_io(fn ->
       Rprel.Build.create([path: context[:build_archive_path], build_number: context[:build_number], commit: context[:sha]])
     end)
 
-    assert String.contains?(message, "running archive.sh")
+    assert String.contains?(message, "running archive")
   end
 
-  test "it stops and prints an error when archive.sh fails", context do
+  test "it stops and prints an error when archive fails", context do
     message = capture_io(fn ->
       Rprel.Build.create([path: context[:fail_archive_path], build_number: context[:build_number], commit: context[:sha]])
     end)
 
     refute File.exists?(Path.join(context[:fail_archive_path], 'archive.tgz'))
-    assert String.contains?(message, "archive.sh returned an error")
+    assert String.contains?(message, "archive returned an error")
   end
 
   test "it returns an error with an invalid build path", context do

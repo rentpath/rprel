@@ -60,11 +60,11 @@ defmodule Rprel.Build do
   end
 
   defp archive(path, version_string) do
-    if File.exists?(Path.join([path, 'bin', 'archive.sh'])) do
-      IO.puts("running archive.sh")
-      output = Porcelain.shell("cd #{path} && ./bin/archive.sh")
+    if File.exists?(Path.join([path, 'bin', 'archive'])) do
+      IO.puts("running archive")
+      output = Porcelain.shell("cd #{path} && ./bin/archive")
       if output.status != 0 do
-        IO.puts("archive.sh returned an error")
+        IO.puts("archive returned an error")
       end
       output.status
     else

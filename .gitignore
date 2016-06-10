@@ -11,7 +11,9 @@ erl_crash.dump
 /BUILD-INFO
 /*tgz
 /test/rprel/test_build_archive/BUILD-INFO
-/test/rprel/test_build_archive/archive.tgz
+/test/rprel/test_build_archive/*.tgz
 /test/rprel/test_fail_archive/BUILD-INFO
 /test/rprel/test_build_failure/*.tgz
 /test/rprel/archive.tgz
+/test/rprel/test_build_archive/20160610-109-39b38b6.tgz
+/test/rprel/test_fail_archive/*.tgz

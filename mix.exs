@@ -22,6 +22,7 @@ defmodule Rprel.Mixfile do
      {:bypass, "~> 0.1", only: :test},
      {:mix_test_watch, "~> 0.2", only: :dev},
      {:timex, "~> 2.1.6"},
-     {:porcelain, "~> 2.0.0"}]
+     {:porcelain, "~> 2.0.0"},
+     {:credo, "~> 0.4", only: [:dev, :test]}]
   end
 end

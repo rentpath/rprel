@@ -5,6 +5,7 @@ Rprel (arr-pee-rell) is a tool for creating GitHub releases from a build artifac
 - [Building the Executable](#building-the-executable)
 - [Usage](#usage)
 - [Running the Tests](#running-the-tests)
+- [Running Credo](#running-credo)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -88,6 +89,14 @@ All the tests can also be run with:
 
 To run the tests on save, run:
 ` $ mix test.watch`
+
+
+# Running Credo
+`Rprel` uses [Credo](https://github.com/rrrene/credo) for code analysis. To run:
+```
+$ mix credo --strict
+```
+Please execute this before commiting, and address issues that `credo` finds.
 
 # Contributing
 -  Follow the instructions above to install `elixir` and get the repo running.

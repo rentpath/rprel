@@ -1,4 +1,6 @@
 defmodule Rprel.Build do
+  alias Timex.Date, as: Date
+
   @missing_build_number "You must provide a build number with --build-number"
   @missing_commit_sha "You must provide a commit sha with --commit"
   @invalid_path "You must supply a valid path"
@@ -6,7 +8,7 @@ defmodule Rprel.Build do
   def create(opts) do
     case valid?(opts) do
       {true, opts} ->
-        date = Timex.format(Timex.Date.today, "%Y%m%d", :strftime) |> elem(1)
+        date = Timex.format(Date.today, "%Y%m%d", :strftime) |> elem(1)
         sha = opts[:commit]
         short_sha = String.slice(sha, 0..6)
         build_number = opts[:build_number]

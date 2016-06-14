@@ -3,7 +3,7 @@ defmodule Rprel.CLI do
   Cli args for rprel
   """
 
-  alias Rprel.ReleaseCreator, as: ReleaseCreator
+  alias Rprel.ReleaseCreator
 
   @invalid_repo_name_msg "You must provide a full repo name."
   def invalid_repo_name_msg, do: @invalid_repo_name_msg

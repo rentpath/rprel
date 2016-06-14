@@ -1,16 +1,22 @@
 defmodule Rprel.GithubRelease.HTTP do
+  @moduledoc """
+  API interface to Github Releases
+
+  """
+
   @behaviour Rprel.GithubRelease
 
   def create_release(release = %Rprel.GithubRelease{}, files, [token: token]) do
-    with {:ok, [id: id, upload_url: upload_url]} <- do_create_release(release, token),
-         :ok <- do_upload_files(files, upload_url, token),
-         do: {:ok, id}
+    with {:ok, [id: id, upload_url: upload_url]} <-
+         do_create_release(release, token),
+           :ok <- do_upload_files(files, upload_url, token),
+           do: {:ok, id}
   end
 
   def valid_token?(token) do
     header = HTTPoison.get!(api_url, auth_header(token))
-             |> Map.fetch!(:headers)
-             |> List.keyfind("X-OAuth-Scopes", 0)
+      |> Map.fetch!(:headers)
+      |> List.keyfind("X-OAuth-Scopes", 0)
     case header do
       {_, scopes} -> required_scopes?(scopes)
       _ -> false

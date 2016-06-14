@@ -1,4 +1,8 @@
 defmodule Rprel.GithubRelease.Test do
+  @moduledoc """
+  Stubbed Github backend for Unit Tests
+  """
+
   @behaviour Rprel.GithubRelease
 
   def create_release(_ = %Rprel.GithubRelease{}, _, [token: _]) do

@@ -1,4 +1,8 @@
 defmodule Rprel.ReleaseCreator do
+  @moduledoc """
+  Upload files to a Github Release
+  """
+
   @github_api Application.get_env(:rprel, :github_api)
 
   def create(release_info, files, opts) do
@@ -25,9 +29,10 @@ defmodule Rprel.ReleaseCreator do
   end
 
   defp validate_opts(opts) do
-    cond do
-      @github_api.valid_token?(opts[:token]) -> :ok
-      true -> {:error, :invalid_auth_token}
+    if @github_api.valid_token?(opts[:token]) do
+      :ok
+    else
+      {:error, :invalid_auth_token}
     end
   end
 

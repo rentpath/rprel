@@ -1,4 +1,7 @@
 defmodule Rprel.Build do
+  @moduledoc """
+  Handles gzipping directories or files that can be used as release artifacts.
+  """
   alias Timex.Date, as: Date
 
   @missing_build_number "You must provide a build number with --build-number"

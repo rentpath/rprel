@@ -1,4 +1,7 @@
 defmodule Rprel.Build do
+  @moduledoc """
+  Handles gzipping directories or files that can be used as release artifacts.
+  """
   alias Timex.Date, as: Date
 
   @missing_build_number "You must provide a build number with --build-number"
@@ -8,30 +11,19 @@ defmodule Rprel.Build do
   def create(opts) do
     case valid?(opts) do
       {true, opts} ->
-        date = Timex.format(Date.today, "%Y%m%d", :strftime) |> elem(1)
-        sha = opts[:commit]
-        short_sha = String.slice(sha, 0..6)
-        build_number = opts[:build_number]
-        path = opts[:path]
-        version_string =  "#{date}-#{build_number}-#{short_sha}"
-
-        case build(path, build_number, sha, version_string) do
-          0 -> archive(path, version_string)
+        case build(opts) do
+          0 -> archive(opts)
           {:error, msg} -> IO.puts(msg)
           status when status > 0 -> IO.puts("build returned an error")
           _ -> nil
         end
       {false, _args} ->
-        cond do
-          is_nil(opts[:build_number]) -> {:error, @missing_build_number}
-          is_nil(opts[:commit]) -> {:error, @missing_commit_sha}
-          !valid_path?(opts[:path]) -> {:error, @invalid_path}
-        end
+        error_message(opts)
     end
   end
 
-  defp build(path, build_number, sha, version_string) do
-    case create_build_info(path, build_number, sha, version_string) do
+  defp build([path: path, build_number: build_number, commit: sha]) do
+    case create_build_info(path, build_number, sha) do
       :ok -> run_build_script(path)
       {:error, msg} -> {:error, msg}
     end
@@ -46,7 +38,10 @@ defmodule Rprel.Build do
     end
   end
 
-  defp create_build_info(path, build_number, sha, version_string) do
+  defp create_build_info(path, build_number, sha) do
+    short_sha = String.slice(sha, 0..6)
+    version_string =  "#{today}-#{build_number}-#{short_sha}"
+
     build_info_template = ~s"""
     ---
     version: #{version_string}
@@ -61,7 +56,10 @@ defmodule Rprel.Build do
     end
   end
 
-  defp archive(path, version_string) do
+  defp archive([path: path, build_number: build_number, commit: sha]) do
+    short_sha = String.slice(sha, 0..6)
+    version_string =  "#{today}-#{build_number}-#{short_sha}"
+
     if File.exists?(Path.join([path, 'bin', 'archive'])) do
       IO.puts("running archive")
       output = Porcelain.shell("cd #{path} && ./bin/archive")
@@ -70,12 +68,16 @@ defmodule Rprel.Build do
       end
       output.status
     else
-      archive_path = Path.join(System.tmp_dir(), "#{version_string}.tgz")
-      System.cmd("tar", ["--dereference", "-czf", archive_path, path])
-      System.cmd("mv", [archive_path, path])
-      IO.puts("created #{version_string}.tgz")
-      {:ok, nil}
+      write_archive(path, version_string)
     end
+  end
+
+  defp write_archive(path, version_string) do
+    archive_path = Path.join(System.tmp_dir(), "#{version_string}.tgz")
+    System.cmd("tar", ["--dereference", "-czf", archive_path, path])
+    System.cmd("mv", [archive_path, path])
+    IO.puts("created #{version_string}.tgz")
+    {:ok, nil}
   end
 
   defp valid?(opts) do
@@ -95,14 +97,26 @@ defmodule Rprel.Build do
      opts}
   end
 
-  def valid_path?(path) do
+  defp valid_path?(path) do
     case File.stat(path) do
       {:ok, permission} -> permission.access == :read_write
       {:error, _message} -> false
     end
   end
 
-  def valid_commit?(commit) do
+  defp valid_commit?(commit) do
     is_bitstring(commit)
+  end
+
+  defp today do
+    Timex.format(Date.today, "%Y%m%d", :strftime) |> elem(1)
+  end
+
+  defp error_message(opts) do
+    cond do
+      is_nil(opts[:build_number]) -> {:error, @missing_build_number}
+      is_nil(opts[:commit]) -> {:error, @missing_commit_sha}
+      !valid_path?(opts[:path]) -> {:error, @invalid_path}
+    end
   end
 end

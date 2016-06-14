@@ -1,4 +1,10 @@
 defmodule Rprel.CLI do
+  @moduledoc """
+  Cli args for rprel
+  """
+
+  alias Rprel.ReleaseCreator
+
   @invalid_repo_name_msg "You must provide a full repo name."
   def invalid_repo_name_msg, do: @invalid_repo_name_msg
 
@@ -45,17 +51,19 @@ defmodule Rprel.CLI do
 
   def build(build_argv) do
     {build_opts, _build_args, _invalid_opts} = OptionParser.parse(build_argv, strict: [help: :boolean, build_number: :string, commit: :string, path: :string], aliases: [h: :help])
-    cond do
-      build_opts[:help] -> {:ok, build_help_text}
-      true -> build_opts |> update_with_build_env_vars |> Rprel.Build.create
+    if build_opts[:help] do
+      {:ok, build_help_text}
+    else
+      build_opts |> update_with_build_env_vars |> Build.create
     end
   end
 
   def release(release_argv) do
     {release_opts, release_args, _invalid_opts} = OptionParser.parse(release_argv, strict: [help: :boolean, token: :string, commit: :string, repo: :string, version: :string], aliases: [h: :help, t: :token, c: :commit, r: :repo, v: :version])
-    cond do
-      release_opts[:help] -> {:ok, release_help_text}
-      true -> release_opts |> update_with_release_env_vars |> do_release(release_args)
+    if release_opts[:help] do
+      {:ok, release_help_text}
+    else
+      release_opts |> update_with_release_env_vars |> do_release(release_args)
     end
   end
 
@@ -68,8 +76,8 @@ defmodule Rprel.CLI do
   end
 
   defp do_release(opts, args) do
-    release = %Rprel.GithubRelease{name: opts[:repo], version: opts[:version], commit: opts[:commit]}
-    case Rprel.ReleaseCreator.create(release, args, [token: opts[:token]]) do
+    release_struct = %Rprel.GithubRelease{name: opts[:repo], version: opts[:version], commit: opts[:commit]}
+    case ReleaseCreator.create(release_struct, args, [token: opts[:token]]) do
       {:error, :invalid_auth_token} -> {:error, @invalid_token_msg}
       {:error, :invalid_repo_name} -> {:error, @invalid_repo_name_msg}
       {:error, :missing_commit} -> {:error, @invalid_commit_msg}

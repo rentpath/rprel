@@ -3,6 +3,8 @@ defmodule Rprel.CLI do
   Cli args for rprel
   """
 
+  alias Rprel.ReleaseCreator, as: ReleaseCreator
+
   @invalid_repo_name_msg "You must provide a full repo name."
   def invalid_repo_name_msg, do: @invalid_repo_name_msg
 
@@ -52,7 +54,7 @@ defmodule Rprel.CLI do
     if build_opts[:help] do
       {:ok, build_help_text}
     else
-      build_opts |> update_with_build_env_vars |> Rprel.Build.create
+      build_opts |> update_with_build_env_vars |> Build.create
     end
   end
 
@@ -75,7 +77,7 @@ defmodule Rprel.CLI do
 
   defp do_release(opts, args) do
     release_struct = %Rprel.GithubRelease{name: opts[:repo], version: opts[:version], commit: opts[:commit]}
-    case Rprel.ReleaseCreator.create(release_struct, args, [token: opts[:token]]) do
+    case ReleaseCreator.create(release_struct, args, [token: opts[:token]]) do
       {:error, :invalid_auth_token} -> {:error, @invalid_token_msg}
       {:error, :invalid_repo_name} -> {:error, @invalid_repo_name_msg}
       {:error, :missing_commit} -> {:error, @invalid_commit_msg}

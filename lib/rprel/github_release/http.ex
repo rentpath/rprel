@@ -6,6 +6,7 @@ defmodule Rprel.GithubRelease.HTTP do
 
   @behaviour Rprel.GithubRelease
 
+  @spec create_release(release :: %Rprel.GithubRelease{}, files :: list | String.t, creds :: [token: String.t]) :: {:ok, id :: String.t} | {:error, msg :: String.t}
   def create_release(release = %Rprel.GithubRelease{}, files, [token: token]) do
     with {:ok, [id: id, upload_url: upload_url]} <-
          do_create_release(release, token),
@@ -14,9 +15,10 @@ defmodule Rprel.GithubRelease.HTTP do
   end
 
   def valid_token?(token) do
-    header = HTTPoison.get!(api_url, auth_header(token))
-      |> Map.fetch!(:headers)
-      |> List.keyfind("X-OAuth-Scopes", 0)
+    header = api_url
+             |> HTTPoison.get!(auth_header(token))
+             |> Map.fetch!(:headers)
+             |> List.keyfind("X-OAuth-Scopes", 0)
     case header do
       {_, scopes} -> required_scopes?(scopes)
       _ -> false
@@ -25,7 +27,7 @@ defmodule Rprel.GithubRelease.HTTP do
 
   defp do_create_release(release, token) do
     resp =
-      api_url <> "/repos/#{release.name}/releases"
+      "#{api_url}/repos/#{release.name}/releases"
       |> authenticated_post(formatted_release_body(release), token)
 
     case resp.status_code do
@@ -41,7 +43,8 @@ defmodule Rprel.GithubRelease.HTTP do
     [files]
     |> List.flatten
     |> Enum.each(fn (file) ->
-      url = UriTemplate.expand(url_template, name: Path.basename(file))
+      url = url_template
+            |> UriTemplate.expand(name: Path.basename(file))
             |> String.replace_trailing("&label=", "")
       authenticated_post(url, {:file, file}, token)
     end)

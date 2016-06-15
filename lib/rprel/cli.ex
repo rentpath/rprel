@@ -3,90 +3,71 @@ defmodule Rprel.CLI do
   Cli args for rprel
   """
 
+  alias Rprel.Build
   alias Rprel.ReleaseCreator
+  alias Rprel.Messages
 
-  @invalid_repo_name_msg "You must provide a full repo name."
-  def invalid_repo_name_msg, do: @invalid_repo_name_msg
+  @main_flags [help: :boolean, version: :boolean]
+  @main_aliases [h: :help, v: :version]
 
-  @invalid_commit_msg "You must provide a commit sha."
-  def invalid_commit_msg, do: @invalid_commit_msg
+  @build_flags [help: :boolean, build_number: :string, commit: :string, path: :string]
+  @build_aliases [h: :help]
 
-  @invalid_version_msg "You must provide a version number."
-  def invalid_version_msg, do: @invalid_version_msg
-
-  @invalid_files_msg "You must provide at least one valid file."
-  def invalid_files_msg, do: @invalid_files_msg
-
-  @invalid_token_msg "You must provide a valid GitHub authentication token."
-  def invalid_token_msg, do: @invalid_token_msg
-
-  @release_already_exists_msg "A release for that version already exists. Please use a different version."
-  def release_already_exists_msg, do: @release_already_exists_msg
-
-  @unspecified_error_msg "An unknown error has occurred."
-  def unspecified_error_msg, do: @unspecified_error_msg
+  @release_flags [help: :boolean, token: :string, commit: :string, repo: :string, version: :string]
+  @release_aliases [h: :help, t: :token, c: :commit, r: :repo, v: :version]
 
   def main(argv) do
     {_result, message} = do_main(argv)
+
     if message, do: IO.puts(message)
   end
 
   def do_main(argv) do
-    {opts, args, _invalid_opts} = OptionParser.parse_head(argv, strict: [help: :boolean, version: :boolean], aliases: [h: :help, v: :version])
+    {opts, args, _invalid_opts} = OptionParser.parse_head(argv, strict: @main_flags, aliases: @main_aliases)
     case args do
       ["help" | cmd] -> help(cmd)
       ["build" | build_argv] -> build(build_argv)
       ["release" | release_argv] -> release(release_argv)
       _ -> handle_other_commands(opts)
-     end
+    end
   end
 
   def help(cmd) do
     case cmd do
-      ["build"] -> {:ok, build_help_text}
-      ["release"] -> {:ok, release_help_text}
+      ["build"] -> {:ok, Messages.build_help_text}
+      ["release"] -> {:ok, Messages.release_help_text}
       _ -> {:error, "No help topic for '#{cmd}'"}
     end
   end
 
   def build(build_argv) do
-    {build_opts, _build_args, _invalid_opts} = OptionParser.parse(build_argv, strict: [help: :boolean, build_number: :string, commit: :string, path: :string], aliases: [h: :help])
+    {build_opts, _build_args, _invalid_opts} = parse_args(build_argv, @build_flags, @build_aliases)
     if build_opts[:help] do
-      {:ok, build_help_text}
+      {:ok, Messages.build_help_text}
     else
       build_opts |> update_with_build_env_vars |> Build.create
     end
   end
 
   def release(release_argv) do
-    {release_opts, release_args, _invalid_opts} = OptionParser.parse(release_argv, strict: [help: :boolean, token: :string, commit: :string, repo: :string, version: :string], aliases: [h: :help, t: :token, c: :commit, r: :repo, v: :version])
+    {release_opts, release_args, _invalid_opts} = parse_args(release_argv, @release_flags, @release_aliases)
     if release_opts[:help] do
-      {:ok, release_help_text}
+      {:ok, Messages.release_help_text}
     else
-      release_opts |> update_with_release_env_vars |> do_release(release_args)
+      release_opts |> update_with_release_env_vars |> ReleaseCreator.create(release_args)
     end
   end
 
   def handle_other_commands(opts) do
     cond do
-      opts[:help] -> {:ok, help_text}
+      opts[:help] -> {:ok, Messages.help_text}
       opts[:version] -> {:ok, Rprel.version}
-      true -> {:ok, help_text}
+      true -> {:ok, Messages.help_text}
     end
   end
 
-  defp do_release(opts, args) do
-    release_struct = %Rprel.GithubRelease{name: opts[:repo], version: opts[:version], commit: opts[:commit]}
-    case ReleaseCreator.create(release_struct, args, [token: opts[:token]]) do
-      {:error, :invalid_auth_token} -> {:error, @invalid_token_msg}
-      {:error, :invalid_repo_name} -> {:error, @invalid_repo_name_msg}
-      {:error, :missing_commit} -> {:error, @invalid_commit_msg}
-      {:error, :missing_version} -> {:error, @invalid_version_msg}
-      {:error, :missing_files} -> {:error, @invalid_files_msg}
-      {:error, :release_already_exists} -> {:error, @release_already_exists_msg}
-      {:error, :unspecified_error} -> {:error, @unspecified_error_msg}
-      {:ok, _} -> {:ok, ""}
-    end
+  defp parse_args(argv, flags, aliases) do
+    OptionParser.parse(argv, strict: flags, aliases: aliases)
   end
 
   defp update_with_release_env_vars(opts) do
@@ -101,69 +82,5 @@ defmodule Rprel.CLI do
     opts
     |> Keyword.put_new(:commit, System.get_env("GIT_COMMIT"))
     |> Keyword.put_new(:build_number, System.get_env("BUILD_NUMBER"))
-  end
-
-  def help_text do
-    ~s"""
-    NAME:
-       rprel - Build and create releases
-    USAGE:
-       rprel [global options] command [command options] [arguments...]
-    VERSION:
-      #{Rprel.version}
-    AUTHOR(S):
-      Tyler Long
-      Colin Rymer
-      Eric Himmelreich
-    COMMANDS:
-      build
-      help
-      release
-    GLOBAL OPTIONS:
-      --help, -h           show help
-      --version, -v        print the version
-    COPYRIGHT:
-      2016
-    """
-  end
-
-  def build_help_text do
-    ~s"""
-    NAME:
-       rprel build - Builds a release artifact
-
-    USAGE:
-       rprel build [command options] [arguments...]
-
-       rprel will run ./bin/build ./bin/archive if they exist
-
-    OPTIONS:
-       --build-number NUMBER
-           The NUMBER used by the CI service to identify the build` [$BUILD_NUMBER]
-       --commit SHA
-           The SHA of the build (default: `git rev-parse --verify HEAD`) [$GIT_COMMIT]
-       --path PATH
-           The path to tar and gzip (default: current working directory )
-    """
-  end
-
-  def release_help_text do
-    ~s"""
-    NAME:
-       rprel release - Creates GitHub release and upload artifacts
-
-    USAGE:
-       rprel release [command options] [arguments...]
-
-    OPTIONS:
-       --token TOKEN, -t TOKEN
-           The GitHub authentication TOKEN [$GITHUB_AUTH_TOKEN]
-       --commit SHA, -c SHA
-           The commit SHA that will be used to create the release [$RELEASE_COMMIT]
-       --repo OWNER/REPO, -r OWNER/REPO
-           The full repo name, OWNER/REPO, where the release will be created [$RELEASE_REPO]
-       --version VERSION, -v VERSION
-           The release VERSION [$RELEASE_VERSION]
-    """
   end
 end

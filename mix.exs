@@ -16,13 +16,13 @@ defmodule Rprel.Mixfile do
   end
 
   defp deps do
-    [{:poison, "~>2.0"},
+    [{:bypass, "~> 0.1", only: :test},
+     {:credo, "~> 0.4", only: [:dev, :test]},
      {:httpoison, "~> 0.8"},
-     {:uri_template, "~>1.0"},
-     {:bypass, "~> 0.1", only: :test},
      {:mix_test_watch, "~> 0.2", only: :dev},
-     {:timex, "~> 2.1.6"},
+     {:poison, "~>2.0"},
      {:porcelain, "~> 2.0.0"},
-     {:credo, "~> 0.4", only: [:dev, :test]}]
+     {:timex, "~> 2.1.6"},
+     {:uri_template, "~>1.0"}]
   end
 end

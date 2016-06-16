@@ -9,20 +9,19 @@ defmodule Rprel.Build do
   @invalid_path "You must supply a valid path"
 
   def create(opts) do
-    case valid?(opts) do
-      {true, opts} ->
-        case build(opts) do
-          0 -> archive(opts)
-          {:error, msg} -> IO.puts(msg)
-          status when status > 0 -> IO.puts("build returned an error")
-          _ -> nil
-        end
-      {false, _args} ->
-        error_message(opts)
+    result =
+      with {true, opts} <- valid?(opts),
+           {:ok, 0} <- build(opts[:path], opts[:build_number], opts[:commit]),
+           do: archive(opts[:path], version_string(opts[:build_number], opts[:commit]))
+
+    case result do
+      {false, _args} -> error_message(opts)
+      {:error, message} -> IO.puts(message)
+      _ -> {:ok, nil}
     end
   end
 
-  defp build([path: path, build_number: build_number, commit: sha]) do
+  defp build(path, build_number, sha) do
     case create_build_info(path, build_number, sha) do
       :ok -> run_build_script(path)
       {:error, msg} -> {:error, msg}
@@ -31,20 +30,22 @@ defmodule Rprel.Build do
 
   defp run_build_script(path) do
     if File.exists?(Path.join([path, 'bin', 'build'])) do
-      Porcelain.shell("cd #{path} && ./bin/build").status
+      case Porcelain.shell("./bin/build", dir: path) do
+        %Porcelain.Result{status: 0} -> {:ok, 0}
+        %Porcelain.Result{out: message} ->
+          message = if String.length(message) == 0, do: "build returned an error"
+              {:error, message}
+      end
     else
       IO.puts("build not found, skipping build step")
-      0
+      {:ok, 0}
     end
   end
 
   defp create_build_info(path, build_number, sha) do
-    short_sha = String.slice(sha, 0..6)
-    version_string =  "#{today}-#{build_number}-#{short_sha}"
-
     build_info_template = ~s"""
     ---
-    version: #{version_string}
+    version: #{version_string(build_number, sha)}
     build_number: #{build_number}
     git_commit: #{sha}
     """
@@ -56,27 +57,24 @@ defmodule Rprel.Build do
     end
   end
 
-  defp archive([path: path, build_number: build_number, commit: sha]) do
-    short_sha = String.slice(sha, 0..6)
-    version_string =  "#{today}-#{build_number}-#{short_sha}"
-
+  defp archive(path, version) do
     if File.exists?(Path.join([path, 'bin', 'archive'])) do
       IO.puts("running archive")
-      output = Porcelain.shell("cd #{path} && ./bin/archive")
+      output = Porcelain.shell("./bin/archive", dir: path)
       if output.status != 0 do
         IO.puts("archive returned an error")
       end
       output.status
     else
-      write_archive(path, version_string)
+      write_archive(path, version)
     end
   end
 
-  defp write_archive(path, version_string) do
-    archive_path = Path.join(System.tmp_dir(), "#{version_string}.tgz")
+  defp write_archive(path, version) do
+    archive_path = Path.join(System.tmp_dir(), "#{version}.tgz")
     System.cmd("tar", ["--dereference", "-czf", archive_path, path])
     System.cmd("mv", [archive_path, path])
-    IO.puts("created #{version_string}.tgz")
+    IO.puts("created #{version}.tgz")
     {:ok, nil}
   end
 
@@ -87,7 +85,7 @@ defmodule Rprel.Build do
 
     unless opts[:commit] do
       command =
-        Porcelain.shell("cd #{opts[:path]} && git rev-parse --verify HEAD")
+        Porcelain.shell("git rev-parse --verify HEAD", dir: opts[:path])
       if command.status == 0 do
         opts = opts ++ [commit: String.strip(command.out)]
       end
@@ -109,7 +107,7 @@ defmodule Rprel.Build do
   end
 
   defp today do
-    Timex.format(Date.today, "%Y%m%d", :strftime) |> elem(1)
+    Date.today |> Timex.format("%Y%m%d", :strftime) |> elem(1)
   end
 
   defp error_message(opts) do
@@ -118,5 +116,9 @@ defmodule Rprel.Build do
       is_nil(opts[:commit]) -> {:error, @missing_commit_sha}
       !valid_path?(opts[:path]) -> {:error, @invalid_path}
     end
+  end
+
+  defp version_string(build_number, sha) do
+    "#{today}-#{build_number}-#{String.slice(sha, 0..6)}"
   end
 end

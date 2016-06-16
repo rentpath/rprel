@@ -2,8 +2,23 @@ defmodule Rprel.ReleaseCreator do
   @moduledoc """
   Upload files to a Github Release
   """
+  alias Rprel.Messages
 
   @github_api Application.get_env(:rprel, :github_api)
+
+  def create(opts, files) do
+    release_info = %Rprel.GithubRelease{name: opts[:repo], version: opts[:version], commit: opts[:commit]}
+    case create(release_info, files, [token: opts[:token]]) do
+      {:error, :invalid_auth_token} -> {:error, Messages.invalid_token_msg}
+      {:error, :invalid_repo_name} -> {:error, Messages.invalid_repo_name_msg}
+      {:error, :missing_commit} -> {:error, Messages.invalid_commit_msg}
+      {:error, :missing_version} -> {:error, Messages.invalid_version_msg}
+      {:error, :missing_files} -> {:error, Messages.invalid_files_msg}
+      {:error, :release_already_exists} -> {:error, Messages.release_already_exists_msg}
+      {:error, :unspecified_error} -> {:error, Messages.unspecified_error_msg}
+      {:ok, _} -> {:ok, ""}
+    end
+  end
 
   def create(release_info, files, opts) do
     with :ok <- validate_release(release_info),

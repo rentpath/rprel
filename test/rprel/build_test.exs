@@ -1,6 +1,7 @@
 defmodule Rprel.BuildTest do
   use ExUnit.Case, async: true
   import ExUnit.CaptureIO
+  import Rprel.Build
 
   setup_all do
     build_path = Path.relative_to_cwd("test/rprel/test_build")
@@ -23,7 +24,7 @@ defmodule Rprel.BuildTest do
 
   test "it creates a build-info file", context do
     capture_io(fn ->
-      Rprel.Build.create([path: context[:build_path], build_number: context[:build_number], commit: context[:sha]])
+      create([path: context[:build_path], build_number: context[:build_number], commit: context[:sha]])
     end)
 
     assert File.exists?(Path.join(context[:build_path], "BUILD-INFO")) == true
@@ -31,7 +32,7 @@ defmodule Rprel.BuildTest do
 
   test "it writes the correct build info template", context do
     capture_io(fn ->
-      Rprel.Build.create([path: context[:build_path], build_number: context[:build_number], commit: context[:sha]])
+      create([path: context[:build_path], build_number: context[:build_number], commit: context[:sha]])
     end)
 
     assert File.read(Path.join(context[:build_path], "BUILD-INFO")) == {:ok,
@@ -45,7 +46,7 @@ defmodule Rprel.BuildTest do
 
   test "it archives the directory", context do
     message = capture_io(fn ->
-      Rprel.Build.create([path: context[:build_path], build_number: context[:build_number], commit: context[:sha]])
+      create([path: context[:build_path], build_number: context[:build_number], commit: context[:sha]])
     end)
 
     assert String.contains?(message,"created #{context[:date]}-#{context[:build_number]}-#{context[:short_sha]}.tgz\n")
@@ -54,7 +55,7 @@ defmodule Rprel.BuildTest do
 
   test "it runs the archive by default", context do
     message = capture_io(fn ->
-      Rprel.Build.create([path: context[:build_archive_path], build_number: context[:build_number], commit: context[:sha]])
+      create([path: context[:build_archive_path], build_number: context[:build_number], commit: context[:sha]])
     end)
 
     assert String.contains?(message, "running archive")
@@ -62,7 +63,7 @@ defmodule Rprel.BuildTest do
 
   test "it stops and prints an error when archive fails", context do
     message = capture_io(fn ->
-      Rprel.Build.create([path: context[:fail_archive_path], build_number: context[:build_number], commit: context[:sha]])
+      create([path: context[:fail_archive_path], build_number: context[:build_number], commit: context[:sha]])
     end)
 
     refute File.exists?(Path.join(context[:fail_archive_path], 'archive.tgz'))
@@ -70,13 +71,13 @@ defmodule Rprel.BuildTest do
   end
 
   test "it returns an error with an invalid build path", context do
-    build = Rprel.Build.create([path: 'missing-directory', build_number: context[:build_number], commit: context[:sha]])
+    build = create([path: 'missing-directory', build_number: context[:build_number], commit: context[:sha]])
     assert {:error, "You must supply a valid path"} = build
   end
 
   test "it runs the build by default", context do
     error_message = capture_io(fn ->
-      assert Rprel.Build.create([path: context[:build_path], build_number: context[:build_number], commit: context[:sha]]) == {:ok, nil}
+      assert create([path: context[:build_path], build_number: context[:build_number], commit: context[:sha]]) == {:ok, nil}
     end)
 
     refute String.contains?(error_message, "build not found, skipping build step")
@@ -84,14 +85,14 @@ defmodule Rprel.BuildTest do
 
   test "it returns an error if the build does not work", context do
     error_message = capture_io(fn ->
-      Rprel.Build.create([path: context[:fail_to_build_path], build_number: context[:build_number], commit: context[:sha]])
+      create([path: context[:fail_to_build_path], build_number: context[:build_number], commit: context[:sha]])
     end)
     assert String.contains?(error_message, "build returned an error")
   end
 
   test "it returns a warning if the build is missing", context do
     error_message = capture_io(fn ->
-      Rprel.Build.create([path: context[:missing_buildsh_path], build_number: context[:build_number], commit: context[:sha]])
+      create([path: context[:missing_buildsh_path], build_number: context[:build_number], commit: context[:sha]])
     end)
 
     assert String.contains?(error_message, "build not found, skipping build step")

@@ -8,7 +8,23 @@ defmodule Rprel.Mixfile do
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      escript: [main_module: Rprel.CLI],
+     description: description(),
+     package: package(),
      deps: deps]
+  end
+
+  defp description do
+    """
+    Rprel (arr-pee-rell) is a tool for creating GitHub releases from a build artifact.
+    """
+  end
+
+  defp package do
+    [
+      maintainers: ["devadmin@rentpath.com"],
+      links: %{"GitHub" => "https://github.com/rentpath/rprel"},
+      licenses: ["The MIT License"]
+    ]
   end
 
   def application do

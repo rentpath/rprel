@@ -5,7 +5,7 @@ defmodule Rprel.ReleaseCreatorTest do
   @files [__ENV__.file, __ENV__.file]
   @token  [token: "token"]
   @name "rentpath/test-bed"
-  @version "v1.1.0"
+  @version "v1.1.2"
   @commit "1a2b3c4"
 
   @release %Rprel.GithubRelease{name: @name, version: @version, commit: @commit}

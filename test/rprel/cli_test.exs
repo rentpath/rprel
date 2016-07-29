@@ -9,7 +9,7 @@ defmodule Rprel.CLITest do
   @commit "abc1234"
   @repo "rentpath/test-bed"
   @token "iamatoken"
-  @version "v1.1.0"
+  @version "v1.1.2"
   @release_cmd ["release", "--repo", @repo, "--token", @token, "--commit", @commit, "--version", @version, __ENV__.file]
 
   test "it returns help text if called with no args" do

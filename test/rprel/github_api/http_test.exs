@@ -5,7 +5,7 @@ defmodule Rprel.GithubRelease.HTTPTest do
   @commit "abc1234"
   @full_repo_name "rentpath/test-bed"
   @release_id 1234
-  @version "v1.1.0"
+  @version "v1.1.2"
   @normal_release %Rprel.GithubRelease{name: @full_repo_name, version: @version, commit: @commit}
 
   def release_upload_url do

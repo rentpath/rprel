@@ -9,8 +9,10 @@ defmodule Rprel.Build do
   @invalid_path "You must supply a valid path"
 
   def create(opts) do
+    {valid, opts} = valid?(opts)
+
     result =
-      with {true, opts} <- valid?(opts),
+      with {true, opts} <- {valid, opts},
            {:ok, 0} <- build(opts[:path], opts[:build_number], opts[:commit]),
            do: archive(opts[:path], version_string(opts[:build_number], opts[:commit]))
 
@@ -84,10 +86,11 @@ defmodule Rprel.Build do
     end
 
     unless opts[:commit] do
+      dir = Path.expand(opts[:path])
       command =
-        Porcelain.shell("git rev-parse --verify HEAD", dir: opts[:path])
+        Porcelain.shell("git rev-parse --verify HEAD", dir: dir)
       if command.status == 0 do
-        opts = opts ++ [commit: String.strip(command.out)]
+        opts = Keyword.put(opts, :commit, String.strip(command.out))
       end
     end
 

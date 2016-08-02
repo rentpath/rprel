@@ -31,8 +31,8 @@ defmodule Rprel.Build do
   end
 
   defp run_build_script(path) do
-    if File.exists?(Path.join([path, 'bin', 'build'])) do
-      case Porcelain.shell("./bin/build", dir: path) do
+    if File.exists?(Path.join([path, 'script', 'build'])) do
+      case Porcelain.shell("./script/build", dir: path) do
         %Porcelain.Result{status: 0} -> {:ok, 0}
         %Porcelain.Result{out: message} ->
           message = if String.length(message) == 0, do: "build returned an error"
@@ -60,9 +60,9 @@ defmodule Rprel.Build do
   end
 
   defp archive(path, version) do
-    if File.exists?(Path.join([path, 'bin', 'archive'])) do
+    if File.exists?(Path.join([path, 'script', 'archive'])) do
       IO.puts("running archive")
-      output = Porcelain.shell("./bin/archive", dir: path)
+      output = Porcelain.shell("./script/archive", dir: path)
       if output.status != 0 do
         IO.puts("archive returned an error")
       end

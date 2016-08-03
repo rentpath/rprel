@@ -55,7 +55,10 @@ defmodule Rprel.GithubRelease.HTTP do
 
   defp auth_header(token), do: %{"Authorization" => "token #{token}"}
 
-  defp authenticated_post(url, body, token), do: HTTPoison.post!(url, body, auth_header(token))
+  defp authenticated_post(url, body, token) do
+    HTTPoison.post!(url, body, auth_header(token),
+      [connect_timeout: 10000, recv_timeout: 10000, timeout: 10000])
+  end
 
   defp required_scopes?(scopes) do
     String.contains?(scopes,"repo") && !String.contains?(scopes,"public_repo")

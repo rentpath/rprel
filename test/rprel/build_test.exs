@@ -58,7 +58,7 @@ defmodule Rprel.BuildTest do
       create([path: context[:build_archive_path], build_number: context[:build_number], commit: context[:sha]])
     end)
 
-    assert String.contains?(message, "running archive")
+    assert String.contains?(message, "running script/archive")
   end
 
   test "it stops and prints an error when archive fails", context do
@@ -67,7 +67,7 @@ defmodule Rprel.BuildTest do
     end)
 
     refute File.exists?(Path.join(context[:fail_archive_path], 'archive.tgz'))
-    assert String.contains?(message, "archive returned an error")
+    assert String.contains?(message, "script/archive returned an error")
   end
 
   test "it returns an error with an invalid build path", context do

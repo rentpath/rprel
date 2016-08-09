@@ -5,6 +5,7 @@ defmodule Rprel.ReleaseCreator do
   alias Rprel.Messages
 
   @github_api Application.get_env(:rprel, :github_api)
+  @system Application.get_env(:rprel, :system)
 
   def create(opts, files) do
     release_info = %Rprel.GithubRelease{name: opts[:repo], version: opts[:version], commit: opts[:commit]}
@@ -24,8 +25,12 @@ defmodule Rprel.ReleaseCreator do
     with :ok <- validate_release(release_info),
          :ok <- validate_files(files),
          :ok <- validate_opts(opts),
-         {:ok, id} <- @github_api.create_release(release_info, files, opts),
-         do: {:ok, [id: id]}
+         {:ok, id} <- @github_api.create_release(release_info, files, opts) do {:ok, [id: id]}
+         else
+           {:error, message} ->
+             {:error, @system.halt(1)}
+             {:error, message}
+         end
   end
 
   defp validate_release(release) do

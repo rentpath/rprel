@@ -2,6 +2,7 @@ defmodule Rprel.CLITest do
   use ExUnit.Case, async: true
 
   alias Rprel.Messages
+  import ExUnit.CaptureIO
   import Rprel.CLI
 
   @ok_resp {:ok, ""}
@@ -44,28 +45,55 @@ defmodule Rprel.CLITest do
   end
 
   test "a repo name is required when releasing" do
-    result = do_main(@release_cmd |> List.delete("--repo") |> List.delete(@repo))
-    assert result == {:error, Messages.invalid_repo_name_msg}
+    result =
+      capture_io(fn ->
+        do_main(@release_cmd |> List.delete("--repo") |> List.delete(@repo))
+      end)
+      |> String.trim
+
+    assert result == Messages.invalid_repo_name_msg
   end
 
   test "a version name is required when releasing" do
-    result = do_main(@release_cmd |> List.delete("--version") |> List.delete(@version))
-    assert result == {:error, Messages.invalid_version_msg}
+    result =
+      capture_io(fn ->
+        do_main(@release_cmd
+                |> List.delete("--version")
+                |> List.delete(@version))
+      end)
+      |> String.trim
+
+    assert result == Messages.invalid_version_msg
   end
 
   test "a commit name is required when releasing" do
-    result = do_main(@release_cmd |> List.delete("--commit") |> List.delete(@commit))
-    assert result == {:error, Messages.invalid_commit_msg}
+    result =
+      capture_io(fn ->
+        do_main(@release_cmd |> List.delete("--commit") |> List.delete(@commit))
+      end)
+      |> String.trim
+
+    assert result == Messages.invalid_commit_msg
   end
 
   test "an auth token is required when releasing" do
-    result = do_main(@release_cmd |> List.delete("--token") |> List.delete(@token))
-    assert result == {:error, Messages.invalid_token_msg}
+    result =
+      capture_io(fn ->
+        do_main(@release_cmd |> List.delete("--token") |> List.delete(@token))
+      end)
+      |> String.trim
+
+    assert result == Messages.invalid_token_msg
   end
 
   test "at least one file is required when releasing" do
-    result = do_main(@release_cmd |> List.delete(__ENV__.file))
-    assert result == {:error, Messages.invalid_files_msg}
+    result =
+      capture_io(fn ->
+        do_main(@release_cmd |> List.delete(__ENV__.file))
+      end)
+      |> String.trim
+
+    assert result == Messages.invalid_files_msg
   end
 
   test "the repo can be specified through an env var" do

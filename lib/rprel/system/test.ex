@@ -1,5 +1,9 @@
 defmodule Rprel.System.Test do
- def halt(status) do
+  @moduledoc """
+  Test module for ExUnit that prevents system exit, which would stop unit tests
+  from running to completion
+  """
 
- end
+  def halt(status) do
+  end
 end

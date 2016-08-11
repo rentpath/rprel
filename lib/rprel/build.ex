@@ -17,8 +17,10 @@ defmodule Rprel.Build do
            do: archive(opts[:path], version_string(opts[:build_number], opts[:commit]))
 
     case result do
-      {false, _args} -> error_message(opts)
-      {:error, message} -> IO.puts(message)
+      {false, _args} ->
+        error_message(opts)
+      {:error, message} ->
+        {:error, message}
       _ -> {:ok, nil}
     end
   end
@@ -72,7 +74,12 @@ defmodule Rprel.Build do
 
       IO.puts(String.strip(output.out))
 
-      output.status
+      if output.status != 0 do
+        {:error, ""}
+      else
+        {:ok, nil}
+      end
+
     else
       write_archive(path, version)
     end

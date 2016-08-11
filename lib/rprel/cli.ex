@@ -16,6 +16,8 @@ defmodule Rprel.CLI do
   @release_flags [help: :boolean, token: :string, commit: :string, repo: :string, version: :string]
   @release_aliases [h: :help, t: :token, c: :commit, r: :repo, v: :version]
 
+  @system Application.get_env(:rprel, :system)
+
   def main(argv) do
     {_result, message} = do_main(argv)
 
@@ -23,12 +25,22 @@ defmodule Rprel.CLI do
   end
 
   def do_main(argv) do
-    {opts, args, _invalid_opts} = OptionParser.parse_head(argv, strict: @main_flags, aliases: @main_aliases)
-    case args do
+    {opts, args, _invalid_opts} =
+      OptionParser.parse_head(argv, strict: @main_flags, aliases: @main_aliases)
+
+    result = case args do
       ["help" | cmd] -> help(cmd)
       ["build" | build_argv] -> build(build_argv)
       ["release" | release_argv] -> release(release_argv)
       _ -> handle_other_commands(opts)
+             end
+
+    case result do
+      {:error, message} ->
+        IO.puts(message)
+        @system.halt(1)
+      _ ->
+        result
     end
   end
 
@@ -41,20 +53,28 @@ defmodule Rprel.CLI do
   end
 
   def build(build_argv) do
-    {build_opts, _build_args, _invalid_opts} = parse_args(build_argv, @build_flags, @build_aliases)
+    {build_opts, _build_args, _invalid_opts} =
+      parse_args(build_argv, @build_flags, @build_aliases)
+
     if build_opts[:help] do
       {:ok, Messages.build_help_text}
     else
-      build_opts |> update_with_build_env_vars |> Build.create
+      build_opts
+      |> update_with_build_env_vars
+      |> Build.create
     end
   end
 
   def release(release_argv) do
-    {release_opts, release_args, _invalid_opts} = parse_args(release_argv, @release_flags, @release_aliases)
+    {release_opts, release_args, _invalid_opts} =
+      parse_args(release_argv, @release_flags, @release_aliases)
+
     if release_opts[:help] do
       {:ok, Messages.release_help_text}
     else
-      release_opts |> update_with_release_env_vars |> ReleaseCreator.create(release_args)
+      release_opts
+      |> update_with_release_env_vars
+      |> ReleaseCreator.create(release_args)
     end
   end
 

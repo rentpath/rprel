@@ -84,10 +84,11 @@ defmodule Rprel.BuildTest do
   end
 
   test "it returns an error if the build does not work", context do
-    error_message = capture_io(fn ->
-      create([path: context[:fail_to_build_path], build_number: context[:build_number], commit: context[:sha]])
+    capture_io(fn ->
+      result = create([path: context[:fail_to_build_path], build_number: context[:build_number], commit: context[:sha]])
+
+      assert result == {:error, "build returned an error"}
     end)
-    assert String.contains?(error_message, "build returned an error")
   end
 
   test "it returns a warning if the build is missing", context do

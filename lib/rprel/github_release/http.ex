@@ -57,7 +57,7 @@ defmodule Rprel.GithubRelease.HTTP do
 
   defp authenticated_post(url, body, token) do
     HTTPoison.post!(url, body, auth_header(token),
-      [connect_timeout: 10000, recv_timeout: 10000, timeout: 10000])
+      [connect_timeout: 10_000, recv_timeout: 10_000, timeout: 10_000])
   end
 
   defp required_scopes?(scopes) do

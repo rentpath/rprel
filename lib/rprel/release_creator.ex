@@ -25,7 +25,7 @@ defmodule Rprel.ReleaseCreator do
          :ok <- validate_files(files),
          :ok <- validate_opts(opts),
          {:ok, id} <- @github_api.create_release(release_info, files, opts),
-         do: {:ok, [id: id]}
+      do: {:ok, [id: id]}
   end
 
   defp validate_release(release) do

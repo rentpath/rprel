@@ -19,12 +19,6 @@ defmodule Rprel.CLI do
   @system Application.get_env(:rprel, :system)
 
   def main(argv) do
-    {_result, message} = do_main(argv)
-
-    if message, do: IO.puts(message)
-  end
-
-  def do_main(argv) do
     {opts, args, _invalid_opts} =
       OptionParser.parse_head(argv, strict: @main_flags, aliases: @main_aliases)
 
@@ -33,13 +27,14 @@ defmodule Rprel.CLI do
       ["build" | build_argv] -> build(build_argv)
       ["release" | release_argv] -> release(release_argv)
       _ -> handle_other_commands(opts)
-             end
+    end
 
     case result do
       {:error, message} ->
         IO.puts(message)
         @system.halt(1)
-      _ ->
+      {:ok, message } ->
+        if String.length(String.trim(message)) > 0, do: IO.puts(message)
         result
     end
   end

@@ -34,6 +34,7 @@ defmodule Rprel.Mixfile do
   defp deps do
     [{:bypass, "~> 0.1", only: :test},
      {:credo, "~> 0.4", only: [:dev, :test]},
+     {:ex_doc, ">= 0.0.0", only: :dev},
      {:httpoison, "~> 0.8"},
      {:mix_test_watch, "~> 0.2", only: :dev},
      {:poison, "~>2.0"},

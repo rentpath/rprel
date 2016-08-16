@@ -1,4 +1,7 @@
 # rprel
+
+[![Build Status](https://travis-ci.org/rentpath/rprel.svg?branch=master)](https://travis-ci.org/rentpath/rprel)
+
 Rprel (arr-pee-rell) is a tool for creating GitHub releases from a build artifact.
 
 **Contents**

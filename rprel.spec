@@ -1,6 +1,6 @@
 Summary: rprel
 Name: rprel
-Version: 1.1.5
+Version: 1.1.6
 Release: 1%{?dist}
 License: MIT
 Group: Development/Tools
@@ -35,6 +35,8 @@ mkdir -p %{buildroot}%{appdir}/
 
 
 %changelog
+* Thu Sep 1 2016 - Eric Himmelreich <ehimmelreich@rentpath.com> - 1.1.6
+- Updated rpm file to v1.1.6
 * Thu Sep 1 2016 - Eric Himmelreich <ehimmelreich@rentpath.com> - 1.1.5
 - Updated rpm file to v1.1.5
 * Mon Jun 06 2016 - Colin Rymer <crymer@rentpath.com> - 1.0.0-1

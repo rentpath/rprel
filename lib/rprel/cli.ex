@@ -33,7 +33,9 @@ defmodule Rprel.CLI do
       {:error, message} ->
         IO.puts(message)
         @system.halt(1)
-      {:ok, message } ->
+      {:ok, nil} ->
+        result
+      {:ok, message} ->
         if String.length(String.trim(message)) > 0, do: IO.puts(message)
         result
     end

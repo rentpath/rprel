@@ -28,17 +28,17 @@ defmodule Rprel.ReleaseCreatorTest do
 
   test "a version is required" do
     resp = create(struct(@release, version: nil), @files, @token)
-    assert resp == {:error, :missing_version}
+    assert resp == {:error, :invalid_version}
   end
 
   test "a commit sha is required" do
     resp = create(struct(@release, commit: nil), @files, @token)
-    assert resp == {:error, :missing_commit}
+    assert resp == {:error, :invalid_commit}
   end
 
   test "at least one file must be provided" do
     resp = create(@release, nil, @token)
-    assert resp == {:error, :missing_files}
+    assert resp == {:error, :invalid_files}
   end
 
   test "the provided files must be readable" do

@@ -3,13 +3,14 @@ defmodule Rprel.Messages do
   A collection of messages to display to the user.
   """
 
-  def invalid_repo_name_msg, do: "You must provide a full repo name."
-  def invalid_commit_msg, do: "You must provide a commit sha."
-  def invalid_version_msg, do: "You must provide a version number."
-  def invalid_files_msg, do: "You must provide at least one valid file."
-  def invalid_token_msg, do: "You must provide a valid GitHub authentication token."
-  def release_already_exists_msg, do: "A release for that version already exists. Please use a different version."
-  def unspecified_error_msg, do: "An unknown error has occurred."
+  def invalid_repo_name, do: "You must provide a full repo name."
+  def invalid_commit, do: "You must provide a commit sha."
+  def invalid_version, do: "You must provide a version number."
+  def invalid_files, do: "You must provide at least one valid file."
+  def invalid_auth_token, do: "You must provide a valid GitHub authentication token."
+  def release_already_exists, do: "A release for that version already exists. Please use a different version."
+  def unspecified_error, do: "An unknown error has occurred."
+  def repo_not_found, do: "Repository not found"
 
   def help_text do
     ~s"""

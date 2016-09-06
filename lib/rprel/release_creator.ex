@@ -9,13 +9,8 @@ defmodule Rprel.ReleaseCreator do
   def create(opts, files) do
     release_info = %Rprel.GithubRelease{name: opts[:repo], version: opts[:version], commit: opts[:commit]}
     case create(release_info, files, [token: opts[:token]]) do
-      {:error, :invalid_auth_token} -> {:error, Messages.invalid_token_msg}
-      {:error, :invalid_repo_name} -> {:error, Messages.invalid_repo_name_msg}
-      {:error, :missing_commit} -> {:error, Messages.invalid_commit_msg}
-      {:error, :missing_version} -> {:error, Messages.invalid_version_msg}
-      {:error, :missing_files} -> {:error, Messages.invalid_files_msg}
-      {:error, :release_already_exists} -> {:error, Messages.release_already_exists_msg}
-      {:error, :unspecified_error} -> {:error, Messages.unspecified_error_msg}
+      {:error, error_atom} ->
+        {:error, apply(Messages, error_atom, [])}
       {:ok, _} -> {:ok, ""}
     end
   end
@@ -37,7 +32,7 @@ defmodule Rprel.ReleaseCreator do
 
   defp validate_files(files) do
     cond do
-      is_nil(files) || files == [] -> {:error, :missing_files}
+      is_nil(files) || files == [] -> {:error, :invalid_files}
       !readable?(files) -> {:error, :unreadable_files}
       true -> :ok
     end
@@ -56,11 +51,11 @@ defmodule Rprel.ReleaseCreator do
   end
 
   defp validate_version(version) do
-    if version, do: :ok, else: {:error, :missing_version}
+    if version, do: :ok, else: {:error, :invalid_version}
   end
 
   defp validate_commit(commit) do
-    if commit, do: :ok, else: {:error, :missing_commit}
+    if commit, do: :ok, else: {:error, :invalid_commit}
   end
 
   defp readable?(files) when is_list(files) do

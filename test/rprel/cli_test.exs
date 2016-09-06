@@ -91,7 +91,7 @@ defmodule Rprel.CLITest do
       end)
       |> String.trim
 
-    assert result == Messages.invalid_repo_name_msg
+    assert result == Messages.invalid_repo_name
   end
 
   test "a version name is required when releasing" do
@@ -103,7 +103,7 @@ defmodule Rprel.CLITest do
       end)
       |> String.trim
 
-    assert result == Messages.invalid_version_msg
+    assert result == Messages.invalid_version
   end
 
   test "a commit name is required when releasing" do
@@ -113,7 +113,7 @@ defmodule Rprel.CLITest do
       end)
       |> String.trim
 
-    assert result == Messages.invalid_commit_msg
+    assert result == Messages.invalid_commit
   end
 
   test "an auth token is required when releasing" do
@@ -123,7 +123,7 @@ defmodule Rprel.CLITest do
       end)
       |> String.trim
 
-    assert result == Messages.invalid_token_msg
+    assert result == Messages.invalid_auth_token
   end
 
   test "at least one file is required when releasing" do
@@ -133,7 +133,7 @@ defmodule Rprel.CLITest do
       end)
       |> String.trim
 
-    assert result == Messages.invalid_files_msg
+    assert result == Messages.invalid_files
   end
 
   test "the repo can be specified through an env var" do

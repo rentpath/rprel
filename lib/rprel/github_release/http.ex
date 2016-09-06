@@ -35,6 +35,7 @@ defmodule Rprel.GithubRelease.HTTP do
         release_info = resp |> Map.fetch!(:body) |> Poison.decode!
         {:ok, [id: release_info["id"], upload_url: release_info["upload_url"]]}
       422 -> {:error, :release_already_exists}
+      404 -> {:error, :repository_not_found}
        _ -> {:error, :unspecified_error}
     end
   end

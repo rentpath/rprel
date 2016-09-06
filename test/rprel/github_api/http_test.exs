@@ -79,6 +79,14 @@ defmodule Rprel.GithubRelease.HTTPTest do
     assert Rprel.GithubRelease.HTTP.create_release(@normal_release, [], [token: @token]) == {:error, :unspecified_error}
   end
 
+  test "error is returned if the repo is missing", %{api_bypass: api_bypass} do
+    Bypass.expect(api_bypass, fn (conn) ->
+      Plug.Conn.resp(conn, 404, release_created_json_resp)
+    end)
+
+    assert Rprel.GithubRelease.HTTP.create_release(@normal_release, [], [token: @token]) == {:error, :repository_not_found}
+  end
+
   test "the files provided are uploaded as assets for a release", %{api_bypass: api_bypass, upload_bypass: upload_bypass} do
     files = [Path.join(__DIR__, "foo.txt"), Path.join(__DIR__, "bar.txt")]
 

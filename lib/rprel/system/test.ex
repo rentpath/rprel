@@ -4,6 +4,6 @@ defmodule Rprel.System.Test do
   from running to completion
   """
 
-  def halt(status) do
+  def halt(_status) do
   end
 end

@@ -7,6 +7,7 @@ Rprel (arr-pee-rell) is a tool for creating GitHub releases from a build artifac
 **Contents**
 - [Building the Executable](#building-the-executable)
 - [Usage](#usage)
+- [Scripts](#build-script-and-archive-script)
 - [Running the Tests](#running-the-tests)
 - [Running Credo](#running-credo)
 - [Contributing](#contributing)
@@ -116,6 +117,10 @@ An example release:
  $ rprel release --repo rentpath/test-bed --version "V1.0.0" --commit "master" 20160613-100-09d5671.tgz
  ```
 will create release `V1.0.0` of `rpenv` and will upload `20160613-100-09d5671.tgz`` as a release artifact.
+
+# Build Script and Archive Script
+The `rprel build` command will check for the existence of two scripts in the repository you are archiving or building; `script/build` && `script/archive`. If `script/build` is not present, `rprel` will `exit 0` and print a warning: `"script/build not found, skipping build step")`; if `script/archive` fails, `rprel` will exit with an error code. These scripts were inspired by
+GitHub's [Scripts To Rule Them All](https://github.com/github/scripts-to-rule-them-all).
 
 # Running the tests:
 

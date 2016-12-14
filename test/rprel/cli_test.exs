@@ -11,7 +11,8 @@ defmodule Rprel.CLITest do
   @repo "rentpath/test-bed"
   @token "iamatoken"
   @version "v1.1.2"
-  @release_cmd ["release", "--repo", @repo, "--token", @token, "--commit", @commit, "--version", @version, __ENV__.file]
+  @branch "fml/123/fake_branch"
+  @release_cmd ["release", "--repo", @repo, "--token", @token, "--commit", @commit, "--branch", @branch, "--version", @version, __ENV__.file]
 
   test "it returns help text if called with no args" do
     message =
@@ -87,7 +88,10 @@ defmodule Rprel.CLITest do
   test "a repo name is required when releasing" do
     result =
       capture_io(fn ->
-        main(@release_cmd |> List.delete("--repo") |> List.delete(@repo))
+        @release_cmd
+        |> List.delete("--repo")
+        |> List.delete(@repo)
+        |> main
       end)
       |> String.trim
 
@@ -97,19 +101,36 @@ defmodule Rprel.CLITest do
   test "a version name is required when releasing" do
     result =
       capture_io(fn ->
-        main(@release_cmd
-                |> List.delete("--version")
-                |> List.delete(@version))
+        @release_cmd
+        |> List.delete("--version")
+        |> List.delete(@version)
+        |> main
       end)
       |> String.trim
 
     assert result == Messages.invalid_version
   end
 
+  test "a branch name is required when releasing" do
+    result =
+      capture_io(fn ->
+        @release_cmd
+        |> List.delete("--branch")
+        |> List.delete(@branch)
+        |> main
+      end)
+      |> String.trim
+
+    assert result == Messages.invalid_branch
+  end
+
   test "a commit name is required when releasing" do
     result =
       capture_io(fn ->
-        main(@release_cmd |> List.delete("--commit") |> List.delete(@commit))
+        @release_cmd
+        |> List.delete("--commit")
+        |> List.delete(@commit)
+        |> main
       end)
       |> String.trim
 
@@ -119,7 +140,10 @@ defmodule Rprel.CLITest do
   test "an auth token is required when releasing" do
     result =
       capture_io(fn ->
-        main(@release_cmd |> List.delete("--token") |> List.delete(@token))
+        @release_cmd
+        |> List.delete("--token")
+        |> List.delete(@token)
+        |> main
       end)
       |> String.trim
 
@@ -129,7 +153,9 @@ defmodule Rprel.CLITest do
   test "at least one file is required when releasing" do
     result =
       capture_io(fn ->
-        main(@release_cmd |> List.delete(__ENV__.file))
+        @release_cmd
+        |> List.delete(__ENV__.file)
+        |> main
       end)
       |> String.trim
 
@@ -138,28 +164,55 @@ defmodule Rprel.CLITest do
 
   test "the repo can be specified through an env var" do
     System.put_env("RELEASE_REPO", @repo)
-    result = main(@release_cmd |> List.delete("--repo") |> List.delete(@repo))
+    result =
+      @release_cmd
+      |> List.delete("--repo")
+      |> List.delete(@repo)
+      |> main
     assert result == @ok_resp
     System.delete_env("RELEASE_REPO")
   end
 
   test "the version can be specified through an env var" do
     System.put_env("RELEASE_VERSION", @version)
-    result = main(@release_cmd |> List.delete("--version") |> List.delete(@version))
+    result =
+      @release_cmd
+      |> List.delete("--version")
+      |> List.delete(@version)
+      |> main
     assert result == @ok_resp
     System.delete_env("RELEASE_VERSION")
   end
 
   test "the commit can be specified through an env var" do
     System.put_env("RELEASE_COMMIT", @commit)
-    result = main(@release_cmd |> List.delete("--commit") |> List.delete(@commit))
+    result =
+      @release_cmd
+      |> List.delete("--commit")
+      |> List.delete(@commit)
+      |> main
     assert result == @ok_resp
     System.delete_env("RELEASE_COMMIT")
   end
 
+  test "the branch can be specified through an env var" do
+    System.put_env("RELEASE_BRANCH", @branch)
+    result =
+      @release_cmd
+      |> List.delete("--branch")
+      |> List.delete(@branch)
+      |> main
+    assert result == @ok_resp
+    System.delete_env("RELEASE_BRANCH")
+  end
+
   test "the auth token can be specified through an env var" do
     System.put_env("GITHUB_AUTH_TOKEN", @token)
-    result = main(@release_cmd |> List.delete("--token") |> List.delete(@token))
+    result =
+      @release_cmd
+      |> List.delete("--token")
+      |> List.delete(@token)
+      |> main
     assert result == @ok_resp
     System.delete_env("GITHUB_AUTH_TOKEN")
   end

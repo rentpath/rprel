@@ -6,7 +6,8 @@ defmodule Rprel.GithubRelease.HTTPTest do
   @full_repo_name "rentpath/test-bed"
   @release_id 1234
   @version "v1.1.2"
-  @normal_release %Rprel.GithubRelease{name: @full_repo_name, version: @version, commit: @commit}
+  @branch "fml/123/fake_branch"
+  @normal_release %Rprel.GithubRelease{name: @full_repo_name, version: @version, commit: @commit, branch: @branch}
 
   def release_upload_url do
     "#{Application.get_env(:rprel, :github_upload_endpoint)}/repos/#{@full_repo_name}/releases/#{@release_id}/assets{?name,label}"
@@ -57,6 +58,7 @@ defmodule Rprel.GithubRelease.HTTPTest do
       assert body_data["name"] == @version
       assert body_data["commitish"]  == @commit
       assert body_data["prerelease"] == true
+      assert body_data["body"] == "branch: #{@branch}"
       Plug.Conn.resp(conn, 201, release_created_json_resp)
     end)
 

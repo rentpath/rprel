@@ -13,8 +13,8 @@ defmodule Rprel.CLI do
   @build_flags [help: :boolean, build_number: :string, commit: :string, path: :string]
   @build_aliases [h: :help]
 
-  @release_flags [help: :boolean, token: :string, commit: :string, repo: :string, version: :string]
-  @release_aliases [h: :help, t: :token, c: :commit, r: :repo, v: :version]
+  @release_flags [help: :boolean, token: :string, commit: :string, repo: :string, version: :string, branch: :string]
+  @release_aliases [h: :help, t: :token, c: :commit, r: :repo, v: :version, b: :branch]
 
   @system Application.get_env(:rprel, :system)
 
@@ -91,6 +91,7 @@ defmodule Rprel.CLI do
     opts
     |> Keyword.put_new(:token, System.get_env("GITHUB_AUTH_TOKEN"))
     |> Keyword.put_new(:commit, System.get_env("RELEASE_COMMIT"))
+    |> Keyword.put_new(:branch, System.get_env("RELEASE_BRANCH"))
     |> Keyword.put_new(:repo, System.get_env("RELEASE_REPO"))
     |> Keyword.put_new(:version, System.get_env("RELEASE_VERSION"))
   end

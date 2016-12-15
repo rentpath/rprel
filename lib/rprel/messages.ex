@@ -5,6 +5,7 @@ defmodule Rprel.Messages do
 
   def invalid_repo_name, do: "You must provide a full repo name."
   def invalid_commit, do: "You must provide a commit sha."
+  def invalid_branch, do: "You must provide a branch."
   def invalid_version, do: "You must provide a version number."
   def invalid_files, do: "You must provide at least one valid file."
   def invalid_auth_token, do: "You must provide a valid GitHub authentication token."
@@ -73,6 +74,8 @@ defmodule Rprel.Messages do
            The full repo name, OWNER/REPO, where the release will be created [$RELEASE_REPO]
        --version VERSION, -v VERSION
            The release VERSION [$RELEASE_VERSION]
+       --branch BRANCH, -b BRANCH
+           The branch that the SHA is tied to [$RELEASE_BRANCH]
     """
   end
 end

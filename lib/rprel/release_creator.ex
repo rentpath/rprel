@@ -7,7 +7,7 @@ defmodule Rprel.ReleaseCreator do
   @github_api Application.get_env(:rprel, :github_api)
 
   def create(opts, files) do
-    release_info = %Rprel.GithubRelease{name: opts[:repo], version: opts[:version], commit: opts[:commit]}
+    release_info = %Rprel.GithubRelease{name: opts[:repo], version: opts[:version], commit: opts[:commit], branch: opts[:branch]}
     case create(release_info, files, [token: opts[:token]]) do
       {:error, error_atom} ->
         {:error, apply(Messages, error_atom, [])}
@@ -27,6 +27,7 @@ defmodule Rprel.ReleaseCreator do
     with :ok <- validate_repo_name(release.name),
          :ok <- validate_version(release.version),
          :ok <- validate_commit(release.commit),
+         :ok <- validate_branch(release.branch),
          do: :ok
   end
 
@@ -56,6 +57,10 @@ defmodule Rprel.ReleaseCreator do
 
   defp validate_commit(commit) do
     if commit, do: :ok, else: {:error, :invalid_commit}
+  end
+
+  defp validate_branch(branch) do
+    if branch, do: :ok, else: {:error, :invalid_branch}
   end
 
   defp readable?(files) when is_list(files) do

@@ -67,6 +67,6 @@ defmodule Rprel.GithubRelease.HTTP do
 
   defp formatted_release_body(release) do
     Poison.encode!(%{tag_name: release.version, name: release.version,
-                     commitish: release.commit, prerelease: true})
+                     commitish: release.commit, prerelease: true, body: "branch: #{release.branch}"})
   end
 end

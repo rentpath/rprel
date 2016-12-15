@@ -7,11 +7,12 @@ defmodule Rprel.ReleaseCreatorTest do
   @name "rentpath/test-bed"
   @version "v1.1.2"
   @commit "1a2b3c4"
+  @branch "fml/123/fake_branch"
 
-  @release %Rprel.GithubRelease{name: @name, version: @version, commit: @commit}
+  @release %Rprel.GithubRelease{name: @name, version: @version, commit: @commit, branch: @branch}
 
   test "it creates a GitHub release" do
-    release = %Rprel.GithubRelease{name: @name, version: @version, commit: @commit}
+    release = %Rprel.GithubRelease{name: @name, version: @version, commit: @commit, branch: @branch}
     created_release = create(release, @files, @token)
     assert {:ok, [id: _]} = created_release
   end

@@ -8,5 +8,5 @@ defmodule Rprel.GithubRelease do
                            creds :: [token: String.t]) :: {:ok, id :: String.t} | {:error, msg :: String.t}
   @callback valid_token?(token :: String.t) :: boolean
 
-  defstruct [:name, :version, :commit, :id, :upload_url]
+  defstruct [:name, :version, :commit, :id, :upload_url, :branch]
 end

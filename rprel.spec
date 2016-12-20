@@ -1,6 +1,6 @@
 Summary: rprel
 Name: rprel
-Version: 2.0.0
+Version: 2.0.1
 Release: 1%{?dist}
 License: MIT
 Group: Development/Tools
@@ -35,6 +35,8 @@ mkdir -p %{buildroot}%{appdir}/
 
 
 %changelog
+* Tue Dec 20 2016 - Tyler Long <tlong@rentpath.com> - 2.0.1
+- Increase timeout
 * Mon Dec 19 2016 - Tyler Long <tlong@rentpath.com> - 2.0.0
 - Add branch argument to `Release` step
 * Thu Sep 1 2016 - Eric Himmelreich <ehimmelreich@rentpath.com> - 1.1.6

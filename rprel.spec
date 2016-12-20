@@ -1,6 +1,6 @@
 Summary: rprel
 Name: rprel
-Version: 1.1.6
+Version: 2.0.0
 Release: 1%{?dist}
 License: MIT
 Group: Development/Tools
@@ -35,6 +35,8 @@ mkdir -p %{buildroot}%{appdir}/
 
 
 %changelog
+* Mon Dec 19 2016 - Tyler Long <tlong@rentpath.com> - 2.0.0
+- Add branch argument to `Release` step
 * Thu Sep 1 2016 - Eric Himmelreich <ehimmelreich@rentpath.com> - 1.1.6
 - Updated rpm file to v1.1.6
 * Thu Sep 1 2016 - Eric Himmelreich <ehimmelreich@rentpath.com> - 1.1.5

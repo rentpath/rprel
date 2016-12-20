@@ -57,8 +57,9 @@ defmodule Rprel.GithubRelease.HTTP do
   defp auth_header(token), do: %{"Authorization" => "token #{token}"}
 
   defp authenticated_post(url, body, token) do
+    timeout = Application.get_env(:rprel, :file_upload_timeout)
     HTTPoison.post!(url, body, auth_header(token),
-      [connect_timeout: 10_000, recv_timeout: 10_000, timeout: 10_000])
+      [connect_timeout: timeout, recv_timeout: timeout, timeout: timeout])
   end
 
   defp required_scopes?(scopes) do

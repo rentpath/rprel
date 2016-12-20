@@ -24,6 +24,6 @@ use Mix.Config
 config :rprel, github_api_endpoint: "https://api.github.com"
 config :porcelain, driver: Porcelain.Driver.Basic
 config :rprel, system: System
+config :rprel, file_upload_timeout: 100_000
 
 import_config "#{Mix.env}.exs"
-

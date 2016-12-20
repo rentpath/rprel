@@ -6,6 +6,8 @@ defmodule Rprel.GithubRelease.HTTP do
 
   @behaviour Rprel.GithubRelease
 
+  @timeout Application.get_env(:rprel, :file_upload_timeout)
+
   @spec create_release(release :: %Rprel.GithubRelease{}, files :: list | String.t, creds :: [token: String.t]) :: {:ok, id :: String.t} | {:error, msg :: String.t}
   def create_release(release = %Rprel.GithubRelease{}, files, [token: token]) do
     with {:ok, [id: id, upload_url: upload_url]} <-
@@ -57,9 +59,8 @@ defmodule Rprel.GithubRelease.HTTP do
   defp auth_header(token), do: %{"Authorization" => "token #{token}"}
 
   defp authenticated_post(url, body, token) do
-    timeout = Application.get_env(:rprel, :file_upload_timeout)
     HTTPoison.post!(url, body, auth_header(token),
-      [connect_timeout: timeout, recv_timeout: timeout, timeout: timeout])
+      [connect_timeout: @timeout, recv_timeout: @timeout, timeout: @timeout])
   end
 
   defp required_scopes?(scopes) do

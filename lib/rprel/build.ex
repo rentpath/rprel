@@ -135,6 +135,6 @@ defmodule Rprel.Build do
   end
 
   defp version_string(build_number, sha) do
-    "#{today}-#{build_number}-#{String.slice(sha, 0..6)}"
+    "#{today()}-#{build_number}-#{String.slice(sha, 0..6)}"
   end
 end

@@ -14,7 +14,7 @@ defmodule Rprel.GithubRelease.HTTPTest do
   end
 
   def release_created_json_resp do
-    ~s<{"upload_url": "#{release_upload_url}", "id": #{@release_id}, "tag_name": "#{@version}", "target_commitish": "#{@commit}", "name": "#{@version}", "body": "", "draft": false, "prerelease": true, "created_at": "2013-02-27T19:35:32Z", "published_at": "2013-02-27T19:35:32Z", "author": {"login": "octocat", "id": 1}, "assets": []}>
+    ~s<{"upload_url": "#{release_upload_url()}", "id": #{@release_id}, "tag_name": "#{@version}", "target_commitish": "#{@commit}", "name": "#{@version}", "body": "", "draft": false, "prerelease": true, "created_at": "2013-02-27T19:35:32Z", "published_at": "2013-02-27T19:35:32Z", "author": {"login": "octocat", "id": 1}, "assets": []}>
   end
 
   setup do
@@ -59,7 +59,7 @@ defmodule Rprel.GithubRelease.HTTPTest do
       assert body_data["commitish"]  == @commit
       assert body_data["prerelease"] == true
       assert body_data["body"] == "branch: #{@branch}"
-      Plug.Conn.resp(conn, 201, release_created_json_resp)
+      Plug.Conn.resp(conn, 201, release_created_json_resp())
     end)
 
     assert Rprel.GithubRelease.HTTP.create_release(@normal_release, [], [token: @token]) == {:ok, @release_id}
@@ -67,7 +67,7 @@ defmodule Rprel.GithubRelease.HTTPTest do
 
   test "error is returned if release already exists", %{api_bypass: api_bypass} do
     Bypass.expect(api_bypass, fn (conn) ->
-      Plug.Conn.resp(conn, 422, release_created_json_resp)
+      Plug.Conn.resp(conn, 422, release_created_json_resp())
     end)
 
     assert Rprel.GithubRelease.HTTP.create_release(@normal_release, [], [token: @token]) == {:error, :release_already_exists}
@@ -75,7 +75,7 @@ defmodule Rprel.GithubRelease.HTTPTest do
 
   test "error is returned if there is an unknown error creating the release", %{api_bypass: api_bypass} do
     Bypass.expect(api_bypass, fn (conn) ->
-      Plug.Conn.resp(conn, 500, release_created_json_resp)
+      Plug.Conn.resp(conn, 500, release_created_json_resp())
     end)
 
     assert Rprel.GithubRelease.HTTP.create_release(@normal_release, [], [token: @token]) == {:error, :unspecified_error}
@@ -83,7 +83,7 @@ defmodule Rprel.GithubRelease.HTTPTest do
 
   test "error is returned if the repo is missing", %{api_bypass: api_bypass} do
     Bypass.expect(api_bypass, fn (conn) ->
-      Plug.Conn.resp(conn, 404, release_created_json_resp)
+      Plug.Conn.resp(conn, 404, release_created_json_resp())
     end)
 
     assert Rprel.GithubRelease.HTTP.create_release(@normal_release, [], [token: @token]) == {:error, :repository_not_found}
@@ -93,7 +93,7 @@ defmodule Rprel.GithubRelease.HTTPTest do
     files = [Path.join(__DIR__, "foo.txt"), Path.join(__DIR__, "bar.txt")]
 
     Bypass.expect(api_bypass, fn (conn) ->
-      Plug.Conn.resp(conn, 201, release_created_json_resp)
+      Plug.Conn.resp(conn, 201, release_created_json_resp())
     end)
 
     parent = self()

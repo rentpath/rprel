@@ -8,6 +8,7 @@ defmodule Rprel.Messages do
   def invalid_branch, do: "You must provide a branch."
   def invalid_version, do: "You must provide a version number."
   def invalid_files, do: "You must provide at least one valid file."
+  def unreadable_files, do: "You must provide a file that is readable."
   def invalid_auth_token, do: "You must provide a valid GitHub authentication token."
   def release_already_exists, do: "A release for that version already exists. Please use a different version."
   def unspecified_error, do: "An unknown error has occurred."

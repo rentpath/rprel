@@ -17,7 +17,7 @@ defmodule Rprel.GithubRelease.HTTP do
   end
 
   def valid_token?(token) do
-    header = api_url
+    header = api_url()
              |> HTTPoison.get!(auth_header(token))
              |> Map.fetch!(:headers)
              |> List.keyfind("X-OAuth-Scopes", 0)
@@ -29,7 +29,7 @@ defmodule Rprel.GithubRelease.HTTP do
 
   defp do_create_release(release, token) do
     resp =
-      "#{api_url}/repos/#{release.name}/releases"
+      "#{api_url()}/repos/#{release.name}/releases"
       |> authenticated_post(formatted_release_body(release), token)
 
     case resp.status_code do

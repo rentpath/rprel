@@ -28,7 +28,7 @@ defmodule Rprel.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :httpoison, :porcelain]]
+    [extra_applications: [:logger]]
   end
 
   defp deps do

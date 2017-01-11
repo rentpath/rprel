@@ -12,7 +12,7 @@ defmodule Rprel.BuildTest do
     build_number = "109"
     sha = "39b38b6a397f665a186788370f97006574d760cf"
     short_sha = String.slice(sha, 0..6)
-    date = Timex.format(Timex.Date.today, "%Y%m%d", :strftime) |> elem(1)
+    date = DateTime.utc_now |> Timex.local |> Timex.format!("%Y%m%d", :strftime)
 
     on_exit fn ->
       File.rm(Path.join(build_path, "BUILD-INFO"))
@@ -49,8 +49,8 @@ defmodule Rprel.BuildTest do
       create([path: context[:build_path], build_number: context[:build_number], commit: context[:sha]])
     end)
 
-    assert String.contains?(message,"created #{context[:date]}-#{context[:build_number]}-#{context[:short_sha]}.tgz\n")
-    assert File.exists?(Path.join(context[:build_path], "#{context[:date]}-#{context[:build_number]}-#{context[:short_sha]}.tgz")) == true
+    assert String.contains?(message,"created #{context[:date]}-#{context[:build_number]}-#{context[:short_sha]}.tar.gz\n")
+    assert File.exists?(Path.join(context[:build_path], "#{context[:date]}-#{context[:build_number]}-#{context[:short_sha]}.tar.gz")) == true
   end
 
   test "it runs the archive by default", context do
@@ -66,7 +66,7 @@ defmodule Rprel.BuildTest do
       create([path: context[:fail_archive_path], build_number: context[:build_number], commit: context[:sha]])
     end)
 
-    refute File.exists?(Path.join(context[:fail_archive_path], 'archive.tgz'))
+    refute File.exists?(Path.join(context[:fail_archive_path], 'archive.tar.gz'))
     assert String.contains?(message, "script/archive returned an error")
   end
 

@@ -1,6 +1,6 @@
 Summary: rprel
 Name: rprel
-Version: 2.0.1
+Version: 2.1.0
 Release: 1%{?dist}
 License: MIT
 Group: Development/Tools
@@ -35,6 +35,8 @@ mkdir -p %{buildroot}%{appdir}/
 
 
 %changelog
+* Thu Jan 12 2016 - Tyler Long <tlong@rentpath.com> - 2.1.0
+- Update elixir to version 1.4.0
 * Tue Dec 20 2016 - Tyler Long <tlong@rentpath.com> - 2.0.1
 - Increase timeout
 * Mon Dec 19 2016 - Tyler Long <tlong@rentpath.com> - 2.0.0

@@ -2,7 +2,6 @@ defmodule Rprel.Build do
   @moduledoc """
   Handles gzipping directories or files that can be used as release artifacts.
   """
-  alias Timex.Date, as: Date
 
   @missing_build_number "You must provide a build number with --build-number"
   @missing_commit_sha "You must provide a commit sha with --commit"
@@ -86,26 +85,30 @@ defmodule Rprel.Build do
   end
 
   defp write_archive(path, version) do
-    archive_path = Path.join(System.tmp_dir(), "#{version}.tgz")
+    archive_path = Path.join(System.tmp_dir(), "#{version}.tar.gz")
     System.cmd("tar", ["--dereference", "-czf", archive_path, path])
     System.cmd("mv", [archive_path, path])
-    IO.puts("created #{version}.tgz")
+    IO.puts("created #{version}.tar.gz")
     {:ok, nil}
   end
 
   defp valid?(opts) do
-    unless opts[:path] do
-      opts = opts ++ [path: '.']
-    end
-
-    unless opts[:commit] do
-      dir = Path.expand(opts[:path])
-      command =
-        Porcelain.shell("git rev-parse --verify HEAD", dir: dir)
-      if command.status == 0 do
-        opts = Keyword.put(opts, :commit, String.strip(command.out))
+    opts =
+      case opts[:path] do
+        nil -> opts ++ [path: '.']
+        _ -> opts
       end
-    end
+
+    opts =
+      with nil <- opts[:commit],
+           dir <- Path.expand(opts[:path]),
+           command <- Porcelain.shell("git rev-parse --verify HEAD", dir: dir),
+           0 <- command.status
+      do
+        Keyword.put(opts, :commit, String.strip(command.out))
+      else
+        _ -> opts
+      end
 
     {!!(valid_path?(opts[:path]) && valid_commit?(opts[:commit]) && opts[:build_number] && opts[:commit]),
      opts}
@@ -123,7 +126,7 @@ defmodule Rprel.Build do
   end
 
   defp today do
-    Date.today |> Timex.format("%Y%m%d", :strftime) |> elem(1)
+    DateTime.utc_now |> Timex.local |> Timex.format!("%Y%m%d", :strftime)
   end
 
   defp error_message(opts) do

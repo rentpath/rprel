@@ -13,6 +13,8 @@ defmodule Rprel.Messages do
   def release_already_exists, do: "A release for that version already exists. Please use a different version."
   def unspecified_error, do: "An unknown error has occurred."
   def repo_not_found, do: "Repository not found"
+  def tag_already_exists, do: "Tag already exist. Please use a different version."
+  def tag_ref_already_associated, do: "Tag ref already associated with another."
 
   def help_text do
     ~s"""

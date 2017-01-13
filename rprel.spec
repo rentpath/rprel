@@ -1,6 +1,6 @@
 Summary: rprel
 Name: rprel
-Version: 2.1.1
+Version: 2.1.2
 Release: 1%{?dist}
 License: MIT
 Group: Development/Tools
@@ -35,6 +35,8 @@ mkdir -p %{buildroot}%{appdir}/
 
 
 %changelog
+* Fri Jan 13 2017 - Tyler Long <tlong@rentpath.com> - 2.1.2
+- Update mix version
 * Fri Jan 13 2017 - Tyler Long <tlong@rentpath.com> - 2.1.1
 - Fix errors in Koji build
 * Thu Jan 12 2017 - Tyler Long <tlong@rentpath.com> - 2.1.0

@@ -13,8 +13,8 @@ defmodule Rprel.GithubRelease.HTTP do
 
   @spec create_release(release :: %Rprel.GithubRelease{}, files :: list | String.t, creds :: [token: String.t]) :: {:ok, id :: String.t} | {:error, msg :: String.t}
   def create_release(release = %Rprel.GithubRelease{}, files, [token: token]) do
-    with :ok <- create_tag(release, token),
-         {:ok, %{id: id, upload_url: upload_url}} <- make_release_call(release, token),
+    with {:ok, full_sha} <- create_tag(release, token),
+         {:ok, %{id: id, upload_url: upload_url}} <- make_release_call(release, token, full_sha),
          :ok <- do_upload_files(files, upload_url, token),
       do: {:ok, id}
   end
@@ -34,6 +34,8 @@ defmodule Rprel.GithubRelease.HTTP do
 
   def create_tag(release, token) do
     tag_body = formatted_tag_body(release, token)
+    full_sha = decode_json(tag_body) |> Map.get("object")
+
     resp =
       "#{api_url()}/repos/#{release.name}/git/tags"
       |> authenticated_post(tag_body, token)
@@ -42,7 +44,7 @@ defmodule Rprel.GithubRelease.HTTP do
       201 ->
         with tag_info <- decode_json(resp.body),
              tag_sha <- Map.get(tag_info, "sha"),
-         do: create_tag_ref(release, token, tag_sha)
+         do: {create_tag_ref(release, token, tag_sha), full_sha}
       422 -> {:error, response_message(resp, :tag_already_exists)}
       404 -> {:error, response_message(resp, :repository_not_found)}
         _ -> {:error, response_message(resp, :unspecified_error)}
@@ -63,10 +65,10 @@ defmodule Rprel.GithubRelease.HTTP do
     end
   end
 
-  defp make_release_call(release, token) do
+  defp make_release_call(release, token, full_sha) do
     resp =
       "#{api_url()}/repos/#{release.name}/releases"
-      |> authenticated_post(formatted_release_body(release), token)
+      |> authenticated_post(formatted_release_body(release, full_sha), token)
 
     case resp.status_code do
       201 ->
@@ -103,8 +105,8 @@ defmodule Rprel.GithubRelease.HTTP do
     String.contains?(scopes,"repo") && !String.contains?(scopes,"public_repo")
   end
 
-  defp formatted_release_body(release) do
-    Poison.encode!(%{tag_name: release.version, name: release.version,
+  defp formatted_release_body(release, full_sha) do
+    Poison.encode!(%{tag_name: release.version, target_commitish: full_sha, name: release.version,
                      prerelease: true, body: "branch: #{release.branch}"})
   end
 

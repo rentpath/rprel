@@ -50,7 +50,7 @@ defmodule Rprel.GithubRelease.HTTPTest do
   test "a release is created", %{api_bypass: api_bypass} do
     Bypass.expect(api_bypass, fn (conn) ->
       assert conn.request_path =~ ~r{^/repos/#{@full_repo_name}/(?:releases|git/tags|git/refs|git/trees)}
-      status = 
+      status =
         case conn.method do
           "POST" ->
             if conn.request_path == "/repos/#{@full_repo_name}/releases" do
@@ -59,6 +59,7 @@ defmodule Rprel.GithubRelease.HTTPTest do
               {:ok, body, _} = Plug.Conn.read_body(conn)
               body_data = Poison.decode!(body)
               assert body_data["tag_name"] == @version
+              assert is_nil(body_data["target_commitish"])
               assert body_data["name"] == @version
               assert body_data["prerelease"] == true
               assert body_data["body"] == "branch: #{@branch}"
@@ -75,7 +76,7 @@ defmodule Rprel.GithubRelease.HTTPTest do
 
   test "error is returned if release already exists", %{api_bypass: api_bypass} do
     Bypass.expect(api_bypass, fn (conn) ->
-      status = 
+      status =
         case conn.method do
           "POST" ->
             case conn.request_path do
@@ -149,11 +150,11 @@ defmodule Rprel.GithubRelease.HTTPTest do
     Bypass.expect(
       api_bypass,
       fn(conn) ->
-        status = 
+        status =
           case conn.method do
             "POST" ->
               Agent.update(:requested_urls, &([conn.request_path | &1]))
-              201            
+              201
             _ -> 200
           end
 

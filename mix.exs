@@ -32,7 +32,7 @@ defmodule Rprel.Mixfile do
   end
 
   defp deps do
-    [{:bypass, git: "https://github.com/rentpath/bypass.git", branch: "master", only: :test},
+    [{:bypass, "~> 0.7.0", only: :test},
      {:credo, "~> 0.4", only: [:dev, :test]},
      {:ex_doc, ">= 0.0.0", only: :dev},
      {:httpoison, "~> 0.8"},

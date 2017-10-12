@@ -71,7 +71,7 @@ defmodule Rprel.Build do
         IO.puts("script/archive returned an error")
       end
 
-      IO.puts(String.strip(output.out))
+      IO.puts(String.trim(output.out))
 
       if output.status != 0 do
         {:error, ""}
@@ -105,7 +105,7 @@ defmodule Rprel.Build do
            command <- Porcelain.shell("git rev-parse --verify HEAD", dir: dir),
            0 <- command.status
       do
-        Keyword.put(opts, :commit, String.strip(command.out))
+        Keyword.put(opts, :commit, String.trim(command.out))
       else
         _ -> opts
       end

@@ -32,15 +32,15 @@ defmodule Rprel.Mixfile do
   end
 
   defp deps do
-    [{:bypass, "~> 0.7.0", only: :test},
+    [{:bypass, "~> 0.8.0", only: :test},
      {:credo, "~> 0.4", only: [:dev, :test]},
      {:ex_doc, ">= 0.0.0", only: :dev},
      {:httpoison, "~> 0.8"},
      {:mix_test_watch, "~> 0.2", only: :dev},
-     {:poison, "~>2.0"},
+     {:poison, "~>3.1"},
      {:porcelain, "~> 2.0.0"},
      {:timex, "~> 3.1.7"},
-     {:tzdata, "~> 0.1.8"},
+     {:tzdata, "~> 0.5.12"},
      {:uri_template, "~>1.0"}]
   end
 end

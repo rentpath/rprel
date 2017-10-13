@@ -4,7 +4,7 @@ defmodule Rprel.Mixfile do
   def project do
     [app: :rprel,
      version: "2.2.1",
-     elixir: "~> 1.4.0",
+     elixir: "~> 1.5.0",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      escript: [main_module: Rprel.CLI],

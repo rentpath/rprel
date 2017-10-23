@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "error message output"
+exit 1

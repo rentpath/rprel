@@ -9,6 +9,7 @@ defmodule Rprel.BuildTest do
     fail_archive_path = Path.relative_to_cwd("test/rprel/test_fail_archive")
     fail_to_build_path = Path.relative_to_cwd("test/rprel/test_build_failure")
     missing_buildsh_path = Path.relative_to_cwd("test/rprel/test_no_buildsh")
+    build_error_msg_path = Path.relative_to_cwd("test/rprel/test_build_error_message")
     build_number = "109"
     sha = "39b38b6a397f665a186788370f97006574d760cf"
     short_sha = String.slice(sha, 0..6)
@@ -19,7 +20,16 @@ defmodule Rprel.BuildTest do
       File.rm(Path.join(build_path, "#{date}-#{build_number}-#{short_sha}.tgz"))
     end
 
-    {:ok, build_path: build_path, build_number: build_number, sha: sha, short_sha: short_sha, date: date, fail_to_build_path: fail_to_build_path, missing_buildsh_path: missing_buildsh_path, build_archive_path: build_archive_path, fail_archive_path: fail_archive_path}
+    {:ok, build_archive_path: build_archive_path,
+          build_number: build_number,
+          build_path: build_path,
+          date: date,
+          fail_archive_path: fail_archive_path,
+          fail_to_build_path: fail_to_build_path,
+          build_error_msg_path: build_error_msg_path,
+          missing_buildsh_path: missing_buildsh_path,
+          sha: sha,
+          short_sha: short_sha}
   end
 
   test "it creates a build-info file", context do
@@ -88,6 +98,14 @@ defmodule Rprel.BuildTest do
       result = create([path: context[:fail_to_build_path], build_number: context[:build_number], commit: context[:sha]])
 
       assert result == {:error, "build returned an error"}
+    end)
+  end
+
+  test "it returns an error message if script contained output", context do
+    capture_io(fn ->
+      result = create([path: context[:build_error_msg_path], build_number: context[:build_number], commit: context[:sha]])
+
+      assert result == {:error, "error message output\n"}
     end)
   end
 

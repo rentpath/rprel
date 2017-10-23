@@ -37,14 +37,16 @@ defmodule Rprel.Build do
       case Porcelain.shell("./script/build", dir: Path.expand(path)) do
         %Porcelain.Result{status: 0} -> {:ok, 0}
         %Porcelain.Result{out: message} ->
-          message = if String.length(message) == 0, do: "build returned an error"
-              {:error, message}
+          {:error, build_script_message(message)}
       end
     else
       IO.puts("script/build not found, skipping build step")
       {:ok, 0}
     end
   end
+
+  defp build_script_message(""), do: "build returned an error"
+  defp build_script_message(message), do: message
 
   defp create_build_info(path, build_number, sha) do
     build_info_template = ~s"""

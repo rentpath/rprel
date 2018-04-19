@@ -3,8 +3,8 @@ defmodule Rprel.Mixfile do
 
   def project do
     [app: :rprel,
-     version: "2.2.3",
-     elixir: "~> 1.4",
+     version: "2.2.4",
+     elixir: "~> 1.6",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      escript: [main_module: Rprel.CLI],
@@ -33,16 +33,16 @@ defmodule Rprel.Mixfile do
 
   defp deps do
     [{:bypass, "~> 0.8.0", only: :test},
-     {:credo, "~> 0.4", only: [:dev, :test]},
+     {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
      {:ex_doc, ">= 0.0.0", only: :dev},
-     {:httpoison, "~> 0.8"},
-     {:mix_test_watch, "~> 0.2", only: :dev},
+     {:httpoison, "~> 1.2"},
+     {:mix_test_watch, "~> 0.6.0", only: :dev, runtime: false},
      {:poison, "~> 3.1"},
-     {:porcelain, "~> 2.0.0"},
-     {:timex, "~> 3.1.7"},
+     {:porcelain, "~> 2.0.3"},
+     {:timex, "~> 3.3"},
      # newer tzdata doesn't work from within an escript because it uses ETS
-     {:tzdata, "~> 0.1.8", override: true},
+     {:tzdata, "== 0.1.8", override: true},
      # examples don't even work on newer versions for uri_template
-     {:uri_template, "~> 1.0.0"}]
+     {:uri_template, "~> 1.2"}]
   end
 end

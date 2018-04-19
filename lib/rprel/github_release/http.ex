@@ -102,7 +102,7 @@ defmodule Rprel.GithubRelease.HTTP do
   end
 
   defp required_scopes?(scopes) do
-    String.contains?(scopes,"repo") && !String.contains?(scopes,"public_repo")
+    String.contains?(scopes, "repo") && !String.contains?(scopes, "public_repo")
   end
 
   defp formatted_release_body(release, full_sha) do

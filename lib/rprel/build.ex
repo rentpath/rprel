@@ -88,8 +88,8 @@ defmodule Rprel.Build do
 
   defp write_archive(path, version) do
     archive_path = Path.join(System.tmp_dir(), "#{version}.tar.gz")
-    System.cmd("tar", ["--dereference", "-czf", archive_path, path])
-    System.cmd("mv", [archive_path, path])
+    System.cmd("tar", ["--dereference", "-czf", archive_path, to_string(path)])
+    System.cmd("mv", [archive_path, to_string(path)])
     IO.puts("created #{version}.tar.gz")
     {:ok, nil}
   end

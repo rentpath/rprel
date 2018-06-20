@@ -1,6 +1,6 @@
 Summary: rprel
 Name: rprel
-Version: 2.2.3
+Version: 2.2.4
 Release: 1%{?dist}
 License: MIT
 Group: Development/Tools
@@ -8,7 +8,7 @@ Packager: IDG Engineering Operations <idg.engops@rentpath.com>
 URL: https://github.com/rentpath/rprel
 Source0:  https://github.com/rentpath/rprel/archive/v%{version}.tar.gz
 BuildRoot:  %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
-Requires: erlang >= 18.3
+Requires: erlang >= 20
 Provides: Rprel
 
 %description
@@ -35,6 +35,8 @@ mkdir -p %{buildroot}%{appdir}/
 
 
 %changelog
+* Tue Jun 19 2018 - Pasha Lifshiz <plifshiz@rentpath.com> - 2.2.4
+- Updated most dependencies
 * Tue Jun 12 2018 - Brad Anderson <banderson@rentpath.com> - 2.2.3
 - updating version
 * Tue Jan 17 2017 - Pasha Lifshiz <plifshiz@rentpath.com> - 2.2.1

@@ -1,6 +1,6 @@
 Summary: rprel
 Name: rprel
-Version: 2.2.4
+Version: 2.2.5
 Release: 1%{?dist}
 License: MIT
 Group: Development/Tools
@@ -35,6 +35,7 @@ mkdir -p %{buildroot}%{appdir}/
 
 
 %changelog
+* Wed Jun 20 2018 - Pasha Lifshiz <plifshiz@rentpath.com> - 2.2.5
 * Tue Jun 19 2018 - Pasha Lifshiz <plifshiz@rentpath.com> - 2.2.4
 - Updated most dependencies
 * Tue Jun 12 2018 - Brad Anderson <banderson@rentpath.com> - 2.2.3

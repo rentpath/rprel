@@ -1,6 +1,6 @@
 Summary: rprel
 Name: rprel
-Version: 2.2.5
+Version: 2.2.6
 Release: 1%{?dist}
 License: MIT
 Group: Development/Tools
